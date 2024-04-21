@@ -111,83 +111,6 @@ def membersubscription():
     username = session.get('username')
     return render_template('membersubscription.html', user_name = username)
 
-
-@boundary.route('/paymentSuccess')     # payment page
-def handle_payment_success_1():
-    username = session.get('username')
-    getInvoiceController = controller.GetInvoiceController()
-    makePaymentController = controller.MakePaymentController()
-    assignMembershipController = controller.AssignMembershipController()
-    charges = 20.00
-    membership = "gold"
-    payment = makePaymentController.makePayment(username, charges)
-    display = getInvoiceController.viewDisplay(payment)
-    assignMembershipController.assignMembership(username, membership)
-    return render_template("paymentSuccess.html", user_name = username, display = display, tier = membership.capitalize())
-
-@boundary.route('/paymentSuccess')
-def handle_payment_success_2():
-    username = session.get('username')
-    getInvoiceController = controller.GetInvoiceController()
-    makePaymentController = controller.MakePaymentController()
-    assignMembershipController = controller.AssignMembershipController()
-    charges = 10.00
-    membership = "silver"
-    payment = makePaymentController.makePayment(username, charges)
-    display = getInvoiceController.viewDisplay(payment)
-    assignMembershipController.assignMembership(username, membership)
-    return render_template("paymentSuccess.html", user_name = username, display = display, tier = membership.capitalize())
-
-@boundary.route('/create-payment-session', methods=['POST'])  # process payment
-def create_checkout_session():
-    try:
-
-        username = session.get('username')
-
-        checkMembershipController = controller.CheckMembershipController()
-
-        check_membership = checkMembershipController.checkMembershipExist(username)
-
-        if 'gold-membership' in request.form:
-
-            if(check_membership == 1):
-                 flash('Already has gold membership!', category='error')
-                 return render_template("membersubscription.html", user_name = username)
-            else:
-                checkout_session = stripe.checkout.Session.create(
-                    line_items = [
-                        {
-                            'price' : 'price_1Ou8paRqVdY5zwen2Qyhu1Ii',
-                            'quantity':1
-                        }
-                    ],
-                    mode="subscription",
-                    success_url=url_for('boundary.handle_payment_success_1', _external=True),
-                    cancel_url=YOUR_DOMAIN + "/membersubscription"
-                )
-        
-        else:
-            if(check_membership == 2):
-                flash('Already has silver membership!', category='error')
-                return render_template("membersubscription.html", user_name = username)
-            else:
-                checkout_session = stripe.checkout.Session.create(
-                line_items = [
-                    {
-                        'price' : 'price_1Ou8ovRqVdY5zwenxIfO8AoS',
-                        'quantity':1
-                    }
-                ],
-                mode="subscription",
-                success_url=url_for('boundary.handle_payment_success_2', _external=True),
-                cancel_url=YOUR_DOMAIN + "/membersubscription"
-                )
-    except Exception as e:
-        return str(e)
-    
-    return redirect(checkout_session.url, code=303)
-
-
 @boundary.route('/userfb', methods=['GET'])
 def user_feedback():
     username = session.get('username')
@@ -223,59 +146,7 @@ def admin_feedback():
     return render_template("feedbackAdminPage.html", feedback_list=feedback_list, user_name=username)
 
 
-
-# Upload Image Function
-UPLOAD_FOLDER = 'visualex/static/uploads/'
- 
-ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
- 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-     
- 
-@boundary.route('/uploadImage')
-def upload():
-    username = session.get('username')
-    return render_template('uploadImage.html', user_name = username)
- 
-@boundary.route('/uploadImage', methods=['POST'])
-def upload_image():
-    if 'file' not in request.files:
-        flash('No file part')
-        return redirect(request.url)
-    file = request.files['file']
-    if file.filename == '':
-        flash('No image selected for uploading')
-        return redirect(request.url)
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(UPLOAD_FOLDER, filename))
-        print('upload_image filename: ' + filename)
-        flash('Image successfully uploaded')
-        return render_template('uploadImage.html', filename=filename)
-    else:
-        flash('Allowed image types are - png and jpeg only')
-        return redirect(request.url)
- 
-@boundary.route('/display/<filename>')  #display image on uploadImage.html
-def display_image(filename):
-    print('display_image filename: ' + filename)
-    return redirect(url_for('static', filename='uploads/' + filename), code=301)
- 
-@boundary.route('/history', methods=['GET', 'POST'])
-def history_logs():
-    username = session.get('username')
-    history_logs_controller = controller.ViewHistoryController()
-    history_logs = history_logs_controller.viewHistory(username)
-    return render_template('history.html', history_logs=history_logs, user_name=username)
-
-@boundary.route('/viewmembershiptier')
-def view_membership_tier():
-    username = session.get('username')
-    membership_controller = controller.MembershipController()
-    membership_tier = membership_controller.get_membership_tier_info(username)
-    return render_template('viewmembershiptier.html', membership_tier=membership_tier, user_name=username)
-
+  
 @boundary.route('/account-detail', methods=['GET', 'POST'])
 def display_profile():
     username = session.get('username')

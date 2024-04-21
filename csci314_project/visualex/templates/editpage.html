@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Update the Account Information{% endblock %}
+<body>
+    <h2>Update User Details</h2>
+    <form action="/update_profile" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'error' %}
+                <div class="alert alert-danger alter dismissable fade show" role="alert">
+                    {{ message }}
+                </div>
+                {% else %}
+                <div class="alert alert-success alter dismissable fade show" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        
+        <label for="surname">Surname:</label><br>
+        <input type="text" id="surname" name="surname"><br>
+        
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email"><br>
+        
+        <label for="address">Address:</label><br>
+        <input type="text" id="address" name="address"><br>
+        
+        <label for="password">New Password:</label><br>
+        <input type="password" id="password1" name="password1"><br>
+        
+        <label for="confirm_password">Confirm New Password:</label><br>
+        <input type="password" id="password2" name="password2"><br>
+        
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>
+
+{% block content %}
+{% endblock %}

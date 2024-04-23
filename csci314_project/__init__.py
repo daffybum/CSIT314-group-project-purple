@@ -6,7 +6,7 @@ mysql = MySQL()
 # please change the user/password/db as needed
 def create_app():
     app=Flask(__name__)
-    app.config['SECRET_KEY'] = 'HelloWorld'
+    app.config['SECRET_KEY'] = 'asdasdasd'
     app.config['MYSQL_USER'] = "def"
     app.config['MYSQL_PASSWORD'] = "password"
     app.config['MYSQL_DB'] = "csit314_project"

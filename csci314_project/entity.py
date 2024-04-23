@@ -31,7 +31,6 @@ class UserAccount:
 
         return check
     
-    
     def changePW(self, username, password):
         try:
             cur = mysql.connection.cursor()
@@ -45,7 +44,6 @@ class UserAccount:
         except Exception as e:
             print(f"Error changing Password: {e}")
             return False
-
 
     def createUserAcc(self, userAcc):
         try:
@@ -63,7 +61,6 @@ class UserAccount:
             print(f"Error creating account: {e}")
             return False
         
-     
     def get_user_info(self, username):
         cur = mysql.connection.cursor()
         query = "SELECT username, name, surname, email, address FROM useraccount WHERE username = %s"
@@ -106,6 +103,94 @@ class UserAccount:
                 return None 
         except Exception as e:
             print(f"Error searching user: {e}")
+
+    def can_upload_property_listing(self): # return true if agent
+        return self.role == 'agent'
+
+    def can_view_property_listing(self): # return true if buyer/seller
+        return self.role in ['buyer', 'seller']
+
+
+class Property:
+    def __init__(self, title, description, price, location, agent_id):
+        self.title = title # PK
+        self.description = description
+        self.price = price
+        self.location = location
+        self.agent_id = agent_id # FK of UserAccount's id to tie each property to an agent
+
+    def get_details(self): # might be needed to view a property instance in memory
+        return {
+            'title': self.title,
+            'description': self.description,
+            'price': self.price,
+            'location': self.location,
+            'agent_id': self.agent_id
+        }
+    
+    def createProperty(self):
+        try:
+            cur = mysql.connection.cursor()
+            query = "INSERT INTO properties (title, description, price, location, agent_id) VALUES (%s, %s, %s, %s, %s)"
+            data = (self.title, self.description, self.price, self.location, self.agent_id)
+            cur.execute(query, data)
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error creating property: {e}")
+            return False
+        
+    def deleteProperty(self, title, agent_id):
+        try:
+            cur = mysql.connection.cursor()
+            query = "DELETE FROM property WHERE title = %s AND agent_id = %s"
+            cur.execute(query, (title, agent_id))
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error deleting property: {e}")
+            return False
+
+    def getAllProperties(self):
+        try:
+            cur = mysql.connection.cursor()
+            query = "SELECT * FROM property"
+            cur.execute(query)
+            properties = cur.fetchall()
+            cur.close()
+            return properties
+        except Exception as e:
+            print(f"Error getting properties: {e}")
+            return None
+        
+    def getPropertyByTitle(self, title):
+        try:
+            cur = mysql.connection.cursor()
+            query = "SELECT * FROM property WHERE title = %s"
+            cur.execute(query, (title,))
+            properties = cur.fetchall()
+            cur.close()
+            return properties
+        except Exception as e:
+            print(f"Error getting searched property: {e}")
+            return None
+
+    def getPropertiesByAgent(self, agent_id): # to update/edit his own listings
+        try:
+            cur = mysql.connection.cursor()
+            query = "SELECT * FROM property WHERE agent_id = %s" 
+            cur.execute(query, (agent_id,))
+            properties = cur.fetchall()
+            cur.close()
+            return properties
+        except Exception as e:
+            print(f"Error getting agent properties: {e}")
+            return None
+    
+    # def updateProperty():
+
 
 class FeedbackForum:
     def __init__(self, feedback_id=None, username=None, content=None, feedback_date=None):
@@ -177,5 +262,4 @@ class FeedbackForum:
         else:
             years = days // 365
             return f"{years} years ago"
-
 

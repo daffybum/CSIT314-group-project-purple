@@ -92,3 +92,41 @@ class SearchUserController:
 
     def search_user(self,username):
         return self.userAccount.search_user(username)
+
+# property controllers
+class CreatePropertyController:
+    def __init__(self):
+        self.property_manager = entity.Property()
+
+    def createProperty(self, title, description, price, location, agent_id):
+        property_obj = entity.Property(title, description, price, location, agent_id)
+        return self.property_manager.createProperty(property_obj)
+    
+class DeletePropertyController:
+    def __init__(self):
+        self.property_manager = entity.Property()
+
+    def deleteProperty(self, property_id, agent_id):
+        return self.property_manager.deleteProperty(property_id, agent_id)    
+
+class ViewPropertyController:
+    def __init__(self):
+        self.property_manager = entity.Property()
+
+    def viewProperties(self):
+        return self.property_manager.getAllProperties()
+    
+class ViewPropertyByTitleController:
+    def __init__(self):
+        self.property_manager = entity.Property()
+
+    def viewPropertyByTitle(self, title):
+        return self.property_manager.getPropertyByTitle(title)
+
+class ViewAgentPropertiesController: # for agent to view his listed properties
+    def __init__(self):
+        self.property_manager = entity.Property()
+
+    def viewAgentProperties(self, agent_id):
+        return self.property_manager.getPropertiesByAgent(agent_id)
+    

@@ -1,11 +1,12 @@
 import mysql.connector 
 
 # Connect to MySQL database
+# please change the user/password/db as needed
 conn = mysql.connector.connect(
     host="localhost",
-    user="root",
+    user="",
     password="",
-    database="csci314"
+    database="csit314_project"
 )
 cursor = conn.cursor()
 

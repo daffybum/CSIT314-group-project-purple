@@ -1,4 +1,4 @@
-from visualex import create_app
+from csci314_project import create_app
 
 app = create_app()
 

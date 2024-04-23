@@ -1,4 +1,4 @@
-from visualex import entity
+from csci314_project import entity
 
 # User Account related Controllers
 class LoginController:

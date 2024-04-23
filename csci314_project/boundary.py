@@ -5,8 +5,8 @@ import stripe
 
 from werkzeug.security import generate_password_hash
 
-from visualex import controller
-from visualex import entity
+from csci314_project import controller
+from csci314_project import entity
 
 import urllib.request
 import os

@@ -1,0 +1,35 @@
+CREATE USER 'abc'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON csit314_project.* TO 'abc'@'localhost';
+
+USE csit314_project;
+SHOW TABLES;
+DESCRIBE csit314_project;
+
+DROP TABLE useraccount;
+
+CREATE TABLE useraccount (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    surname VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL,
+    date_of_birth DATE,
+    address VARCHAR(255),
+    role ENUM('agent', 'buyer', 'seller', 'admin') NOT NULL,
+    membership_tier VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE feedback (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(50) NOT NULL,
+    f_content TEXT NOT NULL,
+    feedback_date DATETIME NOT NULL
+);
+
+INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier)
+VALUES ('asd', 'asdasdasd', 'asd', 'asd', 'asd@asd.com', '2000-01-01', '123 asd asd', 'admin', 'basic');
+INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier)
+VALUES ('def', 'defdefdef', 'def', 'def', 'def@def.com', '2000-02-02', '123 def def', 'agent', 'basic');
+INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier)
+VALUES ('zxc', 'zxczxczxc', 'zxc', 'zxc', 'zxc@zxc.com', '2000-03-03', '123 zxc zxc', 'buyer', 'basic');

@@ -11,6 +11,7 @@ from csci314_project import entity
 import urllib.request
 import os
 from werkzeug.utils import secure_filename
+from datetime import datetime
 
 boundary = Blueprint('boundary', __name__)  # Blueprints means it has roots inside a bunch of URLs defined
 
@@ -90,9 +91,11 @@ def sign_up():
         elif not role:
             flash('Please select a role.', category='error')
         else:
+            date_of_birth_obj = datetime.strptime(date_of_birth, '%m/%d/%Y')
+            formatted_date_of_birth = date_of_birth_obj.strftime('%Y-%m-%d')
             createAccountController = controller.CreateUserAccController()
             password1 = generate_password_hash(password1, method='pbkdf2')
-            userAcc = entity.UserAccount(username, password1, name, surname, email, date_of_birth, address, role)
+            userAcc = entity.UserAccount(username, password1, name, surname, email, formatted_date_of_birth, address, role)
             result = createAccountController.createUserAccount(userAcc)
             if (result):
                 flash('Account created!', category='success')

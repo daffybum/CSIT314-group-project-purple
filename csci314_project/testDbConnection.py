@@ -4,7 +4,7 @@ import mysql.connector
 # please change the user/password/db as needed
 conn = mysql.connector.connect(
     host="localhost",
-    user="",
+    user="root",
     password="",
     database="csit314_project"
 )

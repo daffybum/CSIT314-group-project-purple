@@ -49,16 +49,16 @@ class UserAccount:
 
     def createUserAcc(self, userAcc):
         try:
-           cur = mysql.connection.cursor()
+            cur = mysql.connection.cursor()
 
-           query = "INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)" 
-           data = (userAcc.username, userAcc.password, userAcc.name, userAcc.surname, userAcc.email, userAcc.date_of_birth, userAcc.address, userAcc.role)
-           cur.execute(query, data)
+            query = "INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)" 
+            data = (userAcc.username, userAcc.password, userAcc.name, userAcc.surname, userAcc.email, userAcc.date_of_birth, userAcc.address, userAcc.role, userAcc.membership_tier)
+            cur.execute(query, data)
            
-           mysql.connection.commit()
+            mysql.connection.commit()
            
-           cur.close()
-           return True
+            cur.close()
+            return True
         except Exception as e:
             print(f"Error creating account: {e}")
             return False

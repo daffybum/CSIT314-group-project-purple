@@ -200,3 +200,11 @@ def viewSearchedUserDetails():
         return render_template('viewAllUsersAccount.html', user_name = username, users_list = users_list, search_exist = False)
     else:
         return render_template('viewAllUsersAccount.html', user_name = username, users = searchedUsername ,search_exist = True)
+
+#If agent click create property listing
+@boundary.route('/createPropertyPage', methods=['GET', 'POST'])
+def create_property_page():
+    if request.method == 'GET':
+        return render_template('createPropertyPage.html')
+    elif request.method == 'POST':
+        return "Form submitted successfully"  # Example response for now

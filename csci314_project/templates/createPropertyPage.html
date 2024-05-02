@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Create Property Listing{% endblock %}
+
+{% block content %}
+<body>
+    <h2>Create Property Listing</h2>
+    <form action="//createPropertyPage" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                {% if category == 'error' %}
+                <div class="alert alert-danger alter dismissable fade show" role="alert">
+                    {{ message }}
+                </div>
+                {% else %}
+                <div class="alert alert-success alter dismissable fade show" role="alert">
+                    {{ message }}
+                </div>
+            {% endif %}
+            {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <label for="property_name">Property Name:</label><br>
+        <input type="text" id="property_name" name="property_name"><br>
+        
+        <label for="property_description">Property Description:</label><br>
+        <textarea id="property_description" name="property_description"></textarea><br>
+        
+        <label for="property_price">Property Price:</label><br>
+        <input type="number" id="property_price" name="property_price"><br>
+        
+        <label for="property_location">Property Location:</label><br>
+        <input type="text" id="property_location" name="property_location"><br>
+        
+        <label for="property_image">Property Image:</label><br>
+        <input type="file" id="property_image" name="property_image"><br>
+        
+        <button type="submit">Create Listing</button>
+    </form>
+</body>
+{% endblock %}

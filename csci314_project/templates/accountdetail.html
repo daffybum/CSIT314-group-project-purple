@@ -104,7 +104,7 @@
   
   function redirectToDifferentPage() {
     // Redirect to the desired page
-    window.location.href = "/editaccount";// Replace with your actual URL
+    window.location.href = "/editProfile";// Replace with your actual URL
   }
 
   function toggleDeletePopup() {
@@ -116,9 +116,10 @@
     }
   }
 
-  function deleteAccount() {
-    document.getElementById("deleteForm").submit();
-    }
+  function redirectToDifferentPage2() {
+    // Redirect to the desired page
+    window.location.href = "/deleteaccount.html";// Replace with your actual URL
+  }
   
   
   function hideDeletePopup() {
@@ -132,6 +133,11 @@
       <div class="card">
         <table>
           <tr>
+            <td>Role</td>
+            <td>:</td>
+            <td>{{role}}</td>
+          </tr>
+          <tr>
             <td>Username</td>
             <td>:</td>
             <td>{{username}}</td>
@@ -142,6 +148,11 @@
             <td>{{name}}</td>
           </tr>
           <tr>
+            <td>Contact</td>
+            <td>:</td>
+            <td>{{contact}}</td>
+          </tr>
+          <tr>
             <td>Surname</td>
             <td>:</td>
             <td>{{surname}}</td>
@@ -150,6 +161,11 @@
             <td>Email</td>
             <td>:</td>
             <td>{{email}}</td>
+          </tr>
+          <tr>
+            <td>Date Of Birth</td>
+            <td>:</td>
+            <td>{{date_of_birth}}</td>
           </tr>
           <tr>
             <td>Address</td>
@@ -163,8 +179,8 @@
                 <div class="popup" id="popup">
                   <p>This is a popup!!!</p>
                   <p>Are you sure you want to edit the account detail?</p>
-                  <button onclick="redirectToDifferentPage()" class="btn btn-secondary">Yes</button>
-                  <button onclick="hidePopup()" class="btn btn-secondary">No</button>
+                  <a href="#" onclick="redirectToDifferentPage()">Yes</a>
+                  <a href="#" onclick="hidePopup()">No</a>
                 </div>
               </div>
             </td>
@@ -174,16 +190,16 @@
                 <div class="popupd" id="popupd">
                   <p>This is a popup!!!</p>
                   <p>Are you sure you want to delete the account?</p>
-                  <form id="deleteForm" action="/delete_account" method="POST">
-                    <!-- You can include any additional hidden inputs here if needed -->
-                    <button type="submit">Yes</button>
-                    <button onclick="hideDeletePopup()" class="btn btn-secondary">No</button>
-                </form>               
+                  <a href="#" onclick="redirectToDifferentPage2()">Yes</a>
+                  <a href="#" onclick="hideDeletePopup()">No</a>
                 </div>
               </div>
             </td>
           </tr>
         </table>
+        {% if user_name == "admin" %}
+        <a style="text-align: left;" class="nav-link" href="/viewAllUsers">Back</a>
+        {% endif %}
       </div>
     </div>
     <footer class="bg-light py5 mt-5">
@@ -191,7 +207,8 @@
         <img src="images/sim-logo.png" alt="sim-logo"  style="width: 200px; position:absolute; bottom:0; right:0" >
         <img src="images/uow-logo.png" alt="uow-logo"  style="width: 300px; position:absolute; bottom:0; right:0; margin-bottom:-10px; margin-right:200px;">
       </div>
-    </footer>             
+    </footer>
+                 
 </body>
 
 {% endblock %}

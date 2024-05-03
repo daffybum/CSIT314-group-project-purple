@@ -1,265 +1,54 @@
 from flask import session
 from . import mysql
 from werkzeug.security import check_password_hash
-from datetime import datetime
-import pytz
-import base64
 
 class UserAccount:
-    def __init__(self, username=None, password=None, name=None, surname=None, email=None, date_of_birth=None, address=None, role=None, membership_tier="basic"):
+    def __init__(self, role= None,username=None, password=None, name=None, surname=None, contact=None, email=None, date_of_birth=None, address=None):
+        self.role = role
         self.username = username
         self.password = password
         self.name = name
         self.surname = surname
+        self.contact = contact
         self.email = email
         self.date_of_birth = date_of_birth
         self.address = address
-        self.membership_tier = membership_tier
-        self.role = role
 
-    def login(self, username, password):
+    def login(self, username, password, role):
 
         session['username'] = username # store the username in the session
 
         cur = mysql.connection.cursor()
 
-        query = "SELECT password FROM useraccount WHERE username = %s"
-        data = (username,)
-        cur.execute(query, data)
+        query = "SELECT password FROM useraccount WHERE username=%s AND role= %s"
+        cur.execute(query, (username,role))
         account = cur.fetchone()
         check = check_password_hash(account[0], password)
 
         return check
     
-    def changePW(self, username, password):
-        try:
-            cur = mysql.connection.cursor()
-            query = "UPDATE useraccount SET password = %s WHERE username = %s"
-            data = (password, username)
-            cur.execute(query, data)
-            mysql.connection.commit()
-           
-            cur.close()
-            return True
-        except Exception as e:
-            print(f"Error changing Password: {e}")
-            return False
-
     def createUserAcc(self, userAcc):
         try:
-            cur = mysql.connection.cursor()
+           cur = mysql.connection.cursor()
 
-            query = "INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)" 
-            data = (userAcc.username, userAcc.password, userAcc.name, userAcc.surname, userAcc.email, userAcc.date_of_birth, userAcc.address, userAcc.role, userAcc.membership_tier)
-            cur.execute(query, data)
+           query = "INSERT INTO useraccount (role,username, password, name, surname, contact, email, date_of_birth, address) VALUES (%s,%s, %s, %s, %s, %s, %s, %s, %s)" 
+           data = (userAcc.role,userAcc.username, userAcc.password, userAcc.name, userAcc.surname, userAcc.contact, userAcc.email, userAcc.date_of_birth, userAcc.address)
+           cur.execute(query, data)
            
-            mysql.connection.commit()
+           mysql.connection.commit()
            
-            cur.close()
-            return True
+           cur.close()
+           return True
         except Exception as e:
             print(f"Error creating account: {e}")
             return False
-        
-    def get_user_info(self, username):
+    
+    def get_user_info(self, username):  # to edit membership_tier for admin
+        session['selected_user'] = username # store the username in the session
         cur = mysql.connection.cursor()
-        query = "SELECT username, name, surname, email, address FROM useraccount WHERE username = %s"
+        query = "SELECT role, username, name, surname, contact, email, date_of_birth, address FROM useraccount WHERE username = %s"
         cur.execute(query, (username,))
         user_data = cur.fetchone()
         mysql.connection.commit()
         cur.close()
         return user_data
-    
-    def get_all_users(self):
-        try:
-            cur = mysql.connection.cursor()
-
-            query = "SELECT username FROM useraccount"
-            cur.execute(query)
-            users_list = []
-            for user_name in cur.fetchall():
-                username = user_name[0]
-                users_list.append(username)
-
-            cur.close()
-            return users_list
-        except Exception as e:
-            print(f"Error getting username list: {e}")
-
-    def search_user(self, username):
-        try:
-            cur = mysql.connection.cursor()
-
-            query = "SELECT username FROM useraccount where username = %s"
-            data = (username,)
-            cur.execute(query,data)
-           
-            result =  cur.fetchone()
-
-            cur.close()
-            if result:
-                return result[0]
-            else:
-                return None 
-        except Exception as e:
-            print(f"Error searching user: {e}")
-
-    def can_upload_property_listing(self): # return true if agent
-        return self.role == 'agent'
-
-    def can_view_property_listing(self): # return true if buyer/seller
-        return self.role in ['buyer', 'seller']
-
-
-class Property:
-    def __init__(self, title, description, price, location, agent_id):
-        self.title = title # PK
-        self.description = description
-        self.price = price
-        self.location = location
-        self.agent_id = agent_id # FK of UserAccount's id to tie each property to an agent
-
-    def get_details(self): # might be needed to view a property instance in memory
-        return {
-            'title': self.title,
-            'description': self.description,
-            'price': self.price,
-            'location': self.location,
-            'agent_id': self.agent_id
-        }
-    
-    def createProperty(self):
-        try:
-            cur = mysql.connection.cursor()
-            query = "INSERT INTO properties (title, description, price, location, agent_id) VALUES (%s, %s, %s, %s, %s)"
-            data = (self.title, self.description, self.price, self.location, self.agent_id)
-            cur.execute(query, data)
-            mysql.connection.commit()
-            cur.close()
-            return True
-        except Exception as e:
-            print(f"Error creating property: {e}")
-            return False
-        
-    def deleteProperty(self, title, agent_id):
-        try:
-            cur = mysql.connection.cursor()
-            query = "DELETE FROM property WHERE title = %s AND agent_id = %s"
-            cur.execute(query, (title, agent_id))
-            mysql.connection.commit()
-            cur.close()
-            return True
-        except Exception as e:
-            print(f"Error deleting property: {e}")
-            return False
-
-    def getAllProperties(self):
-        try:
-            cur = mysql.connection.cursor()
-            query = "SELECT * FROM property"
-            cur.execute(query)
-            properties = cur.fetchall()
-            cur.close()
-            return properties
-        except Exception as e:
-            print(f"Error getting properties: {e}")
-            return None
-        
-    def getPropertyByTitle(self, title):
-        try:
-            cur = mysql.connection.cursor()
-            query = "SELECT * FROM property WHERE title = %s"
-            cur.execute(query, (title,))
-            properties = cur.fetchall()
-            cur.close()
-            return properties
-        except Exception as e:
-            print(f"Error getting searched property: {e}")
-            return None
-
-    def getPropertiesByAgent(self, agent_id): # to update/edit his own listings
-        try:
-            cur = mysql.connection.cursor()
-            query = "SELECT * FROM property WHERE agent_id = %s" 
-            cur.execute(query, (agent_id,))
-            properties = cur.fetchall()
-            cur.close()
-            return properties
-        except Exception as e:
-            print(f"Error getting agent properties: {e}")
-            return None
-    
-    # def updateProperty():
-
-
-class FeedbackForum:
-    def __init__(self, feedback_id=None, username=None, content=None, feedback_date=None):
-        self.feedback_id = feedback_id
-        self.username = username
-        self.content = content
-        self.feedback_date = feedback_date
-
-    def submitfeedback(self, username, content):
-        try:
-            cur = mysql.connection.cursor()
-
-            query = "INSERT INTO feedback (username, f_content, feedback_date) VALUES (%s, %s, %s)"
-            data = (username, content, datetime.now())
-            cur.execute(query, data)
-
-            mysql.connection.commit()
-
-            cur.close()
-            return True
-        except Exception as e:
-            print(f"Error saving feedback: {e}")
-            return False
-
-    def get_all_feedback(self):
-        try:
-            cur = mysql.connection.cursor()
-
-            query = "SELECT * FROM feedback"
-            cur.execute(query)
-            feedback_list = []
-            for feedback_data in cur.fetchall():
-                feedback = FeedbackForum(feedback_id=feedback_data[0], username=feedback_data[1], content=feedback_data[2], feedback_date=feedback_data[3])
-                feedback_list.append(feedback)
-
-            cur.close()
-            return feedback_list
-        except Exception as e:
-            print(f"Error getting feedback list: {e}")
-    
-    def time_difference(self, feedback_date):
-        #Calculate the time difference between the feedback date and the current time.
-        current_time = datetime.now()
-        time_diff = current_time - feedback_date
-        
-        # Extract days, hours, and minutes
-        days = time_diff.days
-        hours = time_diff.seconds // 3600
-        minutes = (time_diff.seconds // 60) % 60
-        
-        # Format the time difference
-        if days == 0:
-            if hours == 0:
-                if minutes < 2:
-                    return "just now"
-                else:
-                    return f"{minutes} minutes ago"
-            elif hours == 1:
-                return "1 hour ago"
-            else:
-                return f"{hours} hours ago"
-        elif days == 1:
-            return "1 day ago"
-        elif days < 30:
-            return f"{days} days ago"
-        elif days < 365:
-            months = days // 30
-            return f"{months} months ago"
-        else:
-            years = days // 365
-            return f"{years} years ago"
-

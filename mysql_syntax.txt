@@ -1,35 +1,44 @@
-CREATE USER 'abc'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON csit314_project.* TO 'abc'@'localhost';
-
-USE csit314_project;
-SHOW TABLES;
-DESCRIBE csit314_project;
-
-DROP TABLE useraccount;
+CREATE TABLE Properties (
+    property_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_name VARCHAR(255) NOT NULL,
+    property_type VARCHAR(255) NOT NULL,
+    property_location VARCHAR(255) NOT NULL,
+    property_price DECIMAL(10, 2) NOT NULL,
+    property_bedroom INT NOT NULL,
+    property_bathroom INT NOT NULL,
+    property_size VARCHAR(255) NOT NULL,
+    property_postedBy VARCHAR(255) NOT NULL,
+    property_status VARCHAR(255) NOTNULL DEFAULT 'selling',
+    CONSTRAINT FK_propertypostedBy FOREIGN KEY (property_postedBy) REFERENCES useraccount(username)
+);
 
 CREATE TABLE useraccount (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    surname VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL,
-    date_of_birth DATE,
-    address VARCHAR(255),
-    role ENUM('agent', 'buyer', 'seller', 'admin') NOT NULL,
-    membership_tier VARCHAR(50) NOT NULL
-);
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  role varchar(255) DEFAULT NULL,
+  username varchar(255) NOT NULL UNIQUE,
+  password varchar(255) DEFAULT NULL,
+  name varchar(255) DEFAULT NULL,
+  surname varchar(255) DEFAULT NULL,
+  contact varchar(255) DEFAULT NULL,
+  date_of_birth varchar(255) DEFAULT NULL,
+  email varchar(255) DEFAULT NULL,
+  address varchar(255) DEFAULT NULL
+)
 
-CREATE TABLE feedback (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) NOT NULL,
-    f_content TEXT NOT NULL,
-    feedback_date DATETIME NOT NULL
-);
+CREATE TABLE favourites (
+    favourite_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    buyer_name VARCHAR(255) NOT NULL,
+    property_id INT NOT NULL,
+    CONSTRAINT FK_buyer_name FOREIGN KEY (buyer_name) REFERENCES useraccount(username),
+    CONSTRAINT FK_property_id FOREIGN KEY (property_id) REFERENCES Properties(property_id)
+   );
 
-INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier)
-VALUES ('asd', 'asdasdasd', 'asd', 'asd', 'asd@asd.com', '2000-01-01', '123 asd asd', 'admin', 'basic');
-INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier)
-VALUES ('def', 'defdefdef', 'def', 'def', 'def@def.com', '2000-02-02', '123 def def', 'agent', 'basic');
-INSERT INTO useraccount (username, password, name, surname, email, date_of_birth, address, role, membership_tier)
-VALUES ('zxc', 'zxczxczxc', 'zxc', 'zxc', 'zxc@zxc.com', '2000-03-03', '123 zxc zxc', 'buyer', 'basic');
+CREATE TABLE Review (
+    agent_name VARCHAR(255) NOT NULL PRIMARY KEY,
+    review_text TEXT NOT NULL,
+    rating INT NOT NULL,
+    posted_by VARCHAR(255) NOT NULL,
+    CONSTRAINT FK_agent_name FOREIGN KEY (agent_name) REFERENCES useraccount(username),
+    CONSTRAINT FK_posted_by FOREIGN KEY (posted_by) REFERENCES useraccount(username),
+    CONSTRAINT UC_agent_review_unique UNIQUE (agent_name, posted_by)
+);

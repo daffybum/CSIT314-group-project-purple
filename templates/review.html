@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Submit Feedback{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    .star-rating {
+        display: inline-block;
+        font-size: 0; /* Hide the text content of the stars */
+    }
+
+    .star-rating input {
+        display: none;
+    }
+
+    .star-rating label {
+        font-size: 30px;
+        padding: 5px;
+        cursor: pointer;
+        color: #ccc;
+    }
+
+    .star-rating input:checked ~ label {
+        color: #ffcc00;
+    }
+</style>
+<body>
+  <form method='POST'>
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1 class="float-start feedback-heading">Feedback Forum</h1>
+        </div>
+      </div>
+      <div class="row mt-2 text-black">
+        <div class="col">
+          <div class="fw-bold"><h4>Username: {{user_name}}</h4></div>
+          <div class="fw-bold"><h4>Feedback:</h4></div>
+        </div>
+      </div>
+      <div>
+        <form method="POST" action="/giveReview">
+            <h2>Star Rating</h2>
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5">
+                <label for="star1">&#9733;</label>
+                <input type="radio" id="star4" name="rating" value="4">
+                <label for="star2">&#9733;</label>
+                <input type="radio" id="star3" name="rating" value="3">
+                <label for="star3">&#9733;</label>
+                <input type="radio" id="star2" name="rating" value="2">
+                <label for="star4">&#9733;</label>
+                <input type="radio" id="star1" name="rating" value="1">
+                <label for="star5">&#9733;</label>
+            </div>
+        </form>
+        
+      </div>
+      <div class="row mt-2">
+        <div class="col">
+          <textarea class="form-control" id="feedbackText" name="feedbackText" rows="5" placeholder="Type your feedback here..."></textarea>
+        </div>
+      </div>
+      <div class="row mt-4">
+        <div class="col text-end">
+          <button id="submitfeedback" type="submit" class="btn btn-primary">Submit Feedback</button>
+        </div>
+      </div>
+    </div>
+  </form>
+  
+</body>
+{% endblock %}

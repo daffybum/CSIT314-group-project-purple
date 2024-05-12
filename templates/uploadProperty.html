@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Uplad a new Property Listing{% endblock %}
+{% block content %}
+<body>
+    <h2>Property Listing Form</h2>
+    <form method='POST'>
+    <div>
+        <label for="property_name">Name:</label><br>
+        <input type="text" id="property_name" name="property_name" required><br>
+    </div>
+        
+        <div>
+            <label>Property Type:</label><br>
+            <select name="property_type" id="property_type">
+                <option value="HDB" selected>HDB</option>
+                <option value="condo">Condo</option>
+                <option value="landed">Landed</option>
+            </select>
+        </div>
+        <div>
+        <label for="property_location">Location:</label><br>
+        <input type="text" id="property_location" name="property_location" required><br>
+        </div>
+        
+        <div>
+            <label for="property_price">Price:</label><br>
+            <input type="text" id="property_price" name="property_price" required><br>
+        </div>
+
+        <div>
+            <label for="property_bedroom">Number of Bedrooms:</label><br>
+            <select id="property_bedroom" name="property_bedroom" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select><br><br>
+        </div>
+
+        <div>
+            <label for="property_bathroom">Number of Bathrooms:</label><br>
+            <select id="property_bathroom" name="property_bathroom" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select><br><br>
+        </div>
+
+        <div>
+            <label for="property_size">Size (in square meters):</label><br>
+            <input type="text" id="property_size" name="property_size" required><br>
+        </div>
+        <div>
+            <input type="submit" value="Submit">
+        </div>
+    </form>
+</body>
+</html>
+
+
+{% endblock %}

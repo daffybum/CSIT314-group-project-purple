@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Create Property{% endblock %}
+
+{% block content %}
+<div class="main">
+  <div class="container">
+    <h2 class="text-center">Create Property Listing</h2>
+    <div class="card mx-auto" style="max-width: 500px;">
+      <form action="/createPropertyPage" method="POST">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        {% if category == 'error' %}
+        <div class="alert alert-danger alter dismissable fade show" role="alert">
+          {{ message }}
+        </div>
+        {% else %}
+        <div class="alert alert-success alter dismissable fade show" role="alert">
+          {{ message }}
+        </div>
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <label for="property_name">Property Name:</label><br>
+        <input type="text" id="property_name" name="property_name"><br>
+
+        <label for="property_description">Property Description:</label><br>
+        <textarea id="property_description" name="property_description"></textarea><br>
+
+        <label for="property_price">Property Price:</label><br>
+        <input type="number" id="property_price" name="property_price"><br>
+
+        <label for="property_location">Property Location:</label><br>
+        <input type="text" id="property_location" name="property_location"><br>
+
+        <label for="property_image">Property Image:</label><br>
+        <input type="file" id="property_image" name="property_image"><br>
+
+        <br>
+
+        <div class="pt-3 text-center">
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<footer class="bg-light py5 mt-5">
+  <div class="container text-light text-center">
+    <img src="images/sim-logo.png" alt="sim-logo" style="width: 200px; position:absolute; bottom:0; right:0">
+    <img src="images/uow-logo.png" alt="uow-logo" style="width: 300px; position:absolute; bottom:0; right:0; margin-bottom:-10px; margin-right:200px;">
+  </div>
+</footer>
+{% endblock %}
+

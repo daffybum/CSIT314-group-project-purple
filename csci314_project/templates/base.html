@@ -35,7 +35,7 @@
               <a class="nav-link" href="/sell">Sell</a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="/findagents">Find Agents</a>
+              <a class="nav-link" href="/viewAllAgents">Find Agents</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="/rateandreview">Rate and Review</a>
@@ -46,7 +46,7 @@
             {% endif %}
             {% if user_name == "admin" %}
             <li class="nav-item">
-                <a class="nav-link" href="/viewalluseraccount">View All User Account</a>
+                <a class="nav-link" href="/viewAllUsers">View All User Account</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/viewalluserprofile">View All User Profile</a>
@@ -63,7 +63,7 @@
             </li>
             {% if user_name != "admin" %}
             <li class="nav-item">
-              <a class="nav-link" href="/accountProfile">Profile</a>
+              <a class="nav-link" href="/profileDetail">Profile</a>
             </li>
             {% endif %}
             <li class="nav-item">
@@ -109,11 +109,6 @@
     {% endblock %}
     
 
-    <footer class="bg-light fixed-bottom">
-      <div class="container text-black">
-        <img src="/static/images/sim-logo.png" alt="sim-logo"  style="width: 200px; position:relative; bottom: 10px; left:1100px" >
-        <img src="/static/images/uow-logo.png" alt="uow-logo"  style="width: 200px; position:relative; bottom:0; left:1100px; margin-bottom:5px;">
-      </div>
-    </footer>
+
              
 </body>

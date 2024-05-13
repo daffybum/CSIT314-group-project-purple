@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}Buy{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+      <div class="col">
+        <h1 class=>Details</h1>
+      </div>
+
+    </div>
+  
+    
+    <div class="feedback-section" style="height: 600px; overflow-y: auto;">
+      <ol class="list-group list-group-numbered">
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div class="ms-2 me-auto">
+            <div>
+              <div class="fw-bold" style="display: inline;">ID:</div>
+              <div style="display: inline;">{{ property_id }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Name:</div>
+              <div style="display: inline;">{{ property_name }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Type:</div>
+              <div style="display: inline;">{{ property_type }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Location:</div>
+              <div style="display: inline;">{{ property_location }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Price:</div>
+              <div style="display: inline;">{{ property_price }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Bedroom:</div>
+              <div style="display: inline;">{{ property_bedroom }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Bathroom:</div>
+              <div style="display: inline;">{{ property_bathroom }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Size:</div>
+              <div style="display: inline;">{{ property_size }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Posted By:</div>
+              <div style="display: inline;">{{ property_postedBy }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Status:</div>
+              <div style="display: inline;">{{ property_status }}</div>
+            </div>
+            <div>
+                <h2>Mortgage Calculator</h2>
+                <table>
+                    <tr>
+                        <th><label for="loanAmount">Loan Amount ($)</label></th>
+                        <td><input type="number" id="loanAmount" name="loanAmount" required></td>
+                    </tr>
+                    <tr>
+                        <th><label for="interestRate">Interest Rate (%)</label></th>
+                        <td><input type="number" id="interestRate" name="interestRate" step="0.01" required></td>
+                    </tr>
+                    <tr>
+                        <th><label for="loanTerm">Loan Term (years)</label></th>
+                        <td><input type="number" id="loanTerm" name="loanTerm" required></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"><button type="button" onclick="calculateMortgage()">Calculate</button></td>
+                    </tr>
+                </table>
+                
+                <div id="result" style="display: none;">
+                    <h3>Monthly Payment:</h3>
+                    <p id="monthlyPayment"></p>
+                </div>
+
+                <script>
+                    function calculateMortgage() {
+                        var loanAmount = parseFloat(document.getElementById('loanAmount').value);
+                        var interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12; // Monthly interest rate
+                        var loanTermMonths = parseInt(document.getElementById('loanTerm').value) * 12; // Loan term in months
+
+                        var monthlyPayment = (loanAmount * interestRate) / (1 - Math.pow(1 + interestRate, -loanTermMonths));
+
+                        document.getElementById('monthlyPayment').innerText = '$' + monthlyPayment.toFixed(2);
+                        document.getElementById('result').style.display = 'block';
+                    }
+                </script>
+            </div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+{% endblock %}

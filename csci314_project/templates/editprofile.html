@@ -65,7 +65,7 @@
         </table>
         <br>
         <br>
-        <form method="POST">
+        <form action="/editprofile"  method="POST">
 
             {% if role == "admin" %}
             <select name="role" id="role">
@@ -103,7 +103,7 @@
         <a style="text-align: left;" class="nav-link" href="/viewAllUsers">Back</a>
         {% endif %}
         {% if role != "admin" %}
-        <a style="text-align: left;" class="nav-link" href="/accountDetail">Back</a>
+        <a style="text-align: left;" class="nav-link" href="/profileDetail">Back</a>
         {% endif %}
         </div>
     </div>

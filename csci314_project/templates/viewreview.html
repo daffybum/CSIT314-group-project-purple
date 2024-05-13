@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Submit Feedback{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1 class="float-start feedback-heading">Review and Rating Forum</h1>
+    </div>
+  </div>
+
+  <div class="row mt-2 text-black">
+    <div class="col">
+      <div class="fw-bold"><h4>Agent Role: {{role}}</h4></div>
+      <div class="fw-bold"><h4>Agent Name: {{agentname}}</h4></div>
+      <div class="fw-bold"><h4>Agent Contact: {{contact}}</h4></div>
+    </div>
+  </div>
+  <div class="feedback-section" style="height: 600px; overflow-y: auto;">
+    <ol class="list-group list-group-numbered">
+      {% for review in review_list|reverse %}
+      <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+          <div>
+            <div class="fw-bold" style="display: inline;">Review:</div>
+            <div style="display: inline;">{{ review.review_text }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Rating:</div>
+            <div style="display: inline;">{{ review.rating }}/5</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Posted By:</div>
+            <div style="display: inline;">{{ review.posted_by}}</div>
+          </div>
+
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>
+
+
+
+{% endblock %}

@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Submit Feedback{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+    }
+    .rate {
+        float: left;
+        height: 46px;
+        padding: 0 10px;
+    }
+    .rate:not(:checked) > input {
+        position:absolute;
+        top:-9999px;
+    }
+    .rate:not(:checked) > label {
+        float:right;
+        width:1em;
+        overflow:hidden;
+        white-space:nowrap;
+        cursor:pointer;
+        font-size:30px;
+        color:#ccc;
+    }
+    .rate:not(:checked) > label:before {
+        content: '★ ';
+    }
+    .rate > input:checked ~ label {
+        color: #ffc700;    
+    }
+    .rate:not(:checked) > label:hover,
+    .rate:not(:checked) > label:hover ~ label {
+        color: #deb217;  
+    }
+    .rate > input:checked + label:hover,
+    .rate > input:checked + label:hover ~ label,
+    .rate > input:checked ~ label:hover,
+    .rate > input:checked ~ label:hover ~ label,
+    .rate > label:hover ~ input:checked ~ label {
+        color: #c59b08;
+    }
+</style>
+<body>
+  <form method='POST' action="/giveReview">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <h1 class="float-start feedback-heading">Review and Rating Forum</h1>
+        </div>
+      </div>
+      <div class="row mt-2 text-black">
+        <div class="col">
+          <div class="fw-bold"><h4>Agent Role: {{agent_role}}</h4></div>
+          <div class="fw-bold"><h4>Agent Name: {{agent_name}}</h4></div>
+          <div class="fw-bold"><h4>Agent Contact: {{agent_contact}}</h4></div>
+          <div class="fw-bold"><h4>Review:</h4></div>
+        </div>
+      </div>
+      <div>
+    <div class="row mt-2">
+        <div class="col">
+            <textarea class="form-control" id="review_text" name="review_text" rows="5" placeholder="Type your review here..."></textarea>
+        </div>
+    </div>
+    <h2>Star Rating</h2>
+    <div class="rate">
+        <input type="radio" id="star5" name="rating" value="5" />
+        <label for="star5" title="text">5 stars</label>
+        <input type="radio" id="star4" name="rating" value="4" />
+        <label for="star4" title="text">4 stars</label>
+        <input type="radio" id="star3" name="rating" value="3" />
+        <label for="star3" title="text">3 stars</label>
+        <input type="radio" id="star2" name="rating" value="2" />
+        <label for="star2" title="text">2 stars</label>
+        <input type="radio" id="star1" name="rating" value="1" />
+        <label for="star1" title="text">1 star</label>
+        </div>
+        <div class="row mt-4">
+        <div class="col text-end">
+            <button id="submitreviewrating" type="submit" class="btn btn-primary">Submit</button>
+        </div>
+        </div>
+        
+      </div>
+    </div>
+  </form>
+  
+</body>
+{% endblock %}

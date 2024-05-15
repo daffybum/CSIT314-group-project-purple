@@ -130,6 +130,49 @@ class DeleteController:
     def delete_profile(self, username):
         return self.userAccount.delete_account(username, )
 
+class updatePasswordController:
+    def __init__(self):
+        self.userAccount = entity.UserAccount()
+
+    def update_password(self, username, new_password):
+        return self.userAccount.update_password(username, new_password )
+    
+class deletePropertyListingController():
+    def __init__(self):
+        self.propertyListing = entity.PropertyListing()
+
+    def deleteProperty(self,property_id):
+        return self.propertyListing.delete_property(property_id)
+
+class updatePropertyListingController():
+    def __init__(self):
+        self.propertyListing = entity.PropertyListing()
+
+    def updateProperty(self,property_name,property_type,property_location,property_price,property_bedroom,property_bathroom,property_size,property_status,property_id):
+        print('123')
+        return self.propertyListing.update_property(property_name,property_type,property_location,property_price,property_bedroom,property_bathroom,property_size,property_status,property_id)
+
+class ViewFavouriteController():
+    def __init__(self):
+        self.favourite = entity.favourite()
+    
+    def view_favourites(self,buyer_name):
+        return self.favourite.display_favourite(buyer_name)
+    
+class displaySumFavouritesController:
+     def __init__(self):
+        self.favourite = entity.favourite()
+        
+     def display_sum_favourites(self, property_id):
+        print('234')
+        return self.favourite.display_sum_favourites(property_id)
+    
+class calculateSumFavouritesController:
+     def __init__(self):
+        self.favourite = entity.favourite()  
+     def calculate_sum_favourites(self, property_id):
+        return self.favourite.calculate_sum_favourites(property_id)
+      
 #ADMIN
 class GetAllUsersController:
     def __init__(self):
@@ -148,9 +191,19 @@ class SearchUserController:
 class EditProfileController:
     def __init__(self):
         self.userAccount = entity.UserAccount()
-    def edit_profile(self, role,oldUsername, newUsername, name, surname,contact,date_of_birth, email, address):
-        return self.userAccount.edit_profile(role,oldUsername, newUsername, name, surname,contact,date_of_birth, email, address)
-    def edit_profile1(self, name, surname, contact,date_of_birth,email, address,oldUsername,):
-        print('123')
-        return self.userAccount.edit_profile1( name, surname,contact,date_of_birth,  email,address,oldUsername)
+    def edit_profile(self,selected_user, name, surname, contact, date_of_birth, email, address ):
+        return self.userAccount.edit_profile( selected_user,name, surname,contact,date_of_birth,  email,address)
         
+class adminupdatePasswordController:
+    def __init__(self):
+        self.userAccount = entity.UserAccount()
+
+    def admin_update_password(self, username, new_password):
+        return self.userAccount.admin_update_password(username, new_password )
+
+class adminsuspendaccountController:
+    def __init__(self):
+        self.userAccount = entity.UserAccount()
+
+    def admin_update_password(self, username):
+        return self.userAccount.admin_update_password(username)

@@ -116,7 +116,8 @@ def display_password():
             if check_password_hash(password, enteredPassword):
                 return render_template("accountPassword.html", role = role,username=username, password=enteredPassword, user_name = username)
             else:
-                flash('Wrong password or username', category='error')
+                flash('Wrong password please try again', category='error')
+                return render_template("accountdetail.html", role = role,username=username, user_name = username)
 
 
 @boundary.route('/editprofile', methods=['GET', 'POST'])
@@ -125,44 +126,23 @@ def editProfile():
     role = session.get('role')
     selected_user = session.get('selected_user')
     display= controller.DisplayController()
-    if role == 'admin':
-        user = display.get_user_info(selected_user)
-        role, selected_user, name, surname, contact, email, date_of_birth, address = user
-        if request.method == 'POST':
-            role1 = request.form.get('role')
-            username1 = request.form.get('username')
-            name1 = request.form.get('name')
-            surname1 = request.form.get('surname')
-            contact1 = request.form.get('contact')
-            date_of_birth1 = request.form.get('date_of_birth')
-            email1 = request.form.get('email')
-            address1 = request.form.get('address')
-            editProfileController = controller.EditProfileController()
-            editProfile = editProfileController.edit_profile(selected_user, role1, username1, name1, surname1, contact1, date_of_birth1, email1, address1)
-            print(editProfile)
-            if editProfile:
-                flash('Profile updated successfully')
-                user = display.get_user_info(selected_user)
-                role, selected_user, name, surname, contact, email, date_of_birth, address = user
-        return render_template("editprofile.html", role=role, username=selected_user, name=name, surname=surname, contact=contact, date_of_birth=date_of_birth, email=email, address=address, user_name=username)
-    else:
-        user = display.get_user_info(username)
-        role, username, name, surname, contact, date_of_birth, email, address = user
-        if request.method == 'POST':
-            name1 = request.form.get('name')
-            surname1 = request.form.get('surname')
-            contact1 = request.form.get('contact')
-            date_of_birth1 = request.form.get('date_of_birth')
-            email1 = request.form.get('email')
-            address1 = request.form.get('address')
-            editProfileController = controller.EditProfileController()
-            editProfile = editProfileController.edit_profile1(name1, surname1, contact1, date_of_birth1, email1, address1, username)
-            print(editProfile)
-            if editProfile:
-                flash('Profile updated successfully')
-                user = display.get_user_info(username)
-                role, username, name, surname, contact, date_of_birth, email, address = user
-        return render_template("editprofile.html", role=role, username=selected_user, name=name, surname=surname, contact=contact, date_of_birth=date_of_birth, email=email, address=address, user_name=username)
+
+    user = display.get_user_info(selected_user)
+    role, selected_user, name, surname, contact, date_of_birth, email, address = user
+    if request.method == 'POST':
+        name = request.form.get('newname')
+        surname = request.form.get('newsurname')
+        contact = request.form.get('newcontact')
+        date_of_birth = request.form.get('newdate_of_birth')
+        email = request.form.get('newemail')
+        address = request.form.get('newaddress')
+        editProfileController = controller.EditProfileController()
+        editProfile = editProfileController.edit_profile(selected_user, name, surname, contact, date_of_birth, email, address)
+        if editProfile:
+            flash('Profile updated successfully')
+            user = display.get_user_info(selected_user)
+            role, selected_user, name, surname, contact, email, date_of_birth, address = user
+    return render_template("editprofile.html", role=role, username=selected_user, name=name, surname=surname, contact=contact, date_of_birth=date_of_birth, email=email, address=address, user_name=username)
 
 #user story admin2 
 @boundary.route('/viewAllUsers')
@@ -181,7 +161,7 @@ def viewUserDetails():
     user = display.get_user_info(selected_user)
     if user:
         role, selected_user, name, surname, contact,date_of_birth, email, address = user
-        return render_template("accountdetail.html", role=role,username=selected_user,name=name, surname=surname,contact=contact, date_of_birth=date_of_birth, email=email, address=address, user_name = username)
+        return render_template("accountdetail.html", role=role, username=selected_user,name=name, surname=surname,contact=contact, date_of_birth=date_of_birth, email=email, address=address, user_name = username)
     
 #userstory admin5
 @boundary.route('/viewSearchedUserDetails', methods=['POST'])
@@ -270,6 +250,14 @@ def saveFavourite():
         flash('property already favourited!', category="error")
         return redirect(url_for('boundary.buy'))
     
+@boundary.route('/displayFavourite', methods=['GET','POST'])
+def displayFavourite():
+    buyer_name = session.get('username')
+    displayFavouriteController = controller.ViewFavouriteController()
+    favourite = displayFavouriteController.view_favourites(buyer_name)
+    print(favourite)
+    return render_template("viewfavourites.html", favourites=favourite, user_name=buyer_name)
+    
 @boundary.route('/viewSearchedProperty', methods=['POST'])
 def viewSearchedpropertyDetails():
     username = session.get('username')
@@ -300,9 +288,9 @@ def viewSoldpropertyDetails():
     soldProperty = soldPropertyController.view_sold_propertyList()
     if soldProperty is None:
         flash(' No sold properties at the moment!', category='error')
-        return render_template('viewBuy.html', property_list=soldProperty, user_name=username)
+        return render_template('buyPage.html', property_list=soldProperty, user_name=username)
     else:
-        return render_template("viewBuy.html", property_list=soldProperty, user_name=username)
+        return render_template("buyPage.html", property_list=soldProperty, user_name=username)
     
 @boundary.route('/viewAllAgents')
 def viewAllAgent():
@@ -354,20 +342,16 @@ def displayagentdetail():
     else:
         return render_template("review.html", user_name = username,agent_name= agentname,agent_role=role,agent_contact=contact)
     
-@boundary.route('/viewReviewRating', methods=['GET'])
+@boundary.route('/viewReviewRating', methods=['GET','POST'])
 def viewReviewRating():
-    postedby = session.get('username')
-    agentname = session.get('agentname')
-    agentDetailController = controller.DisplayAgentDetailController()
-    agentDetail = agentDetailController.displayAgentDetail(agentname)
-    if agentDetail:
-        role,agentname,contact = agentDetail
-        display_review_controller = controller.DisplayReviewController()
-        review_list = display_review_controller.displayReview(agentname)
-        if review_list:
-            return render_template("viewreview.html", role=role, agentname = agentname,contact=contact,review_list=review_list, user_name=postedby)
-        else:
-            return render_template("viewreview.html", role=role, agentname = agentname,contact=contact, review_list=review_list, user_name=postedby)
+    username = session.get('username')
+    agentname = request.form.get('agentname')
+    display_review_controller = controller.DisplayReviewController()
+    review_list = display_review_controller.displayReview(agentname)
+    if review_list:
+        return render_template("viewreview.html", user_name = username,review_list=review_list)
+    else:
+        return render_template("viewreview.html", user_name = username)
             
 @boundary.route('/viewMyOwnReviewRating', methods=['GET'])
 def viewMyOwnReviewRating():
@@ -406,3 +390,126 @@ def delete_account():
                 # Account deletion failed (username not found, database error, etc.)
                 flash('Failed to delete your account. Please try again later.', category='error')
         return redirect(url_for('boundary.home'))
+
+    
+@boundary.route('/updatePassword', methods=['GET', 'POST'])
+def update_password():
+    username = session.get('username')
+    new_password = request.form.get('new_password')
+    print(new_password)
+    updatePassword = controller.updatePasswordController()
+    result = updatePassword.update_password(username, new_password)
+    if result:
+        flash('Updated password, please login again.', category='success')
+        return redirect(url_for('boundary.login'))
+    else:
+        flash('Failed update your password, please try again', category='error')
+        return redirect(url_for('boundary.home'))
+        
+@boundary.route('/adminUpdatePassword', methods=['GET','POST'])
+def adminupdate_password():
+    username = session.get('username')
+    selected_username = request.form.get('selectedusername')
+    new_password = request.form.get('new_password')
+    updatePassword = controller.adminupdatePasswordController()
+    result = updatePassword.admin_update_password(selected_username, new_password)
+    print(username)
+    print(selected_username)
+    print(new_password)
+    print(result)
+    if result:
+        flash('Updated user password', category='success')
+        return redirect(url_for('boundary.viewAllUsers'))
+    else:
+        flash('Failed update your password, please try again', category='error')
+        return redirect(url_for('boundary.viewAllUsers'))
+                        
+
+        
+@boundary.route('/deleteProperty', methods=['POST'])
+def delete_property():
+    if request.method == 'POST':
+        property_id = request.form.get('property_id')
+        print(property_id)
+    propertyController = controller.deletePropertyListingController()
+    result = propertyController.deleteProperty(property_id)
+    print(result)
+    if result :
+        flash('delete property successfully',category='success')
+        return redirect(url_for('boundary.sell') )
+    else:
+        flash('Failed to delete property', category='error')
+    return redirect(url_for('boundary.sell'))
+
+@boundary.route('/updateProperty', methods=['POST','GET'])
+def update_property():
+    username = session.get('username')
+    property_id = session.get('property_id')
+    print(property_id)
+    if request.method == 'POST':
+        property_name = request.form.get('property_name')
+        property_type = request.form.get('property_type')
+        property_location = request.form.get('property_location')
+        property_price = request.form.get('property_price')  
+        property_bedroom = request.form.get('property_bedroom')
+        property_bathroom = request.form.get('property_bathroom')
+        property_size = request.form.get('property_size')
+        property_status = request.form.get('property_status')
+        propertyController = controller.updatePropertyListingController()
+        result = propertyController.updateProperty(property_name,property_type,property_location,property_price,property_bedroom,property_bathroom,property_size,property_status,property_id)
+        if result:
+            flash('Property updatede successfully',category='success')
+            return redirect(url_for('boundary.sell') )
+        else:
+            flash('Property updatede unsuccessfully',category='error')
+            return redirect(url_for('boundary.sell') )
+    return render_template("updateProperty.html",user_name= username)
+
+@boundary.route('/sellPropertyDetails', methods=['GET','POST'])
+def sellpropertyDetails():
+    username = session.get('username')
+    property_id = request.form.get('property_id')
+    print(property_id)
+    displayPropertyDetails = controller.displayPropertyDetailController()
+    propertydetails = displayPropertyDetails.displayPropertyDetails(property_id)
+    print(propertydetails)
+    if propertydetails:
+        property_id, property_name, property_type, property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy ,property_status= propertydetails
+        return render_template("updateProperty.html", property_id=property_id, property_name=property_name, property_type=property_type, property_location=property_location, property_price=property_price, property_bedroom=property_bedroom, property_bathroom=property_bathroom, property_size=property_size, property_postedBy=property_postedBy, property_status=property_status, user_name=username)
+    else:
+        return redirect(url_for('boundary.sell'))
+
+@boundary.route('/sellPropertyDetails2', methods=['GET','POST'])
+def sellpropertyDetails2():
+    username = session.get('username')
+    property_id = request.form.get('property_id')
+    print(property_id)
+    displayPropertyDetails = controller.displayPropertyDetailController()
+    propertydetails = displayPropertyDetails.displayPropertyDetails(property_id)
+    print(propertydetails)
+    if propertydetails:
+        property_id, property_name, property_type, property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy ,property_status= propertydetails
+        return render_template("SellerPropertyDetails.html", property_id=property_id, property_name=property_name, property_type=property_type, property_location=property_location, property_price=property_price, property_bedroom=property_bedroom, property_bathroom=property_bathroom, property_size=property_size, property_postedBy=property_postedBy, property_status=property_status, user_name=username)
+    else:
+        return redirect(url_for('boundary.sell'))
+    
+@boundary.route('/displaySumFavourites', methods=['GET', 'POST'])
+def display_sum_favourites():
+    username = session.get('username')
+    property_id = session.get('property_id')
+    
+    calculateController= controller.calculateSumFavouritesController()
+    result = calculateController.calculate_sum_favourites(property_id)
+    
+    if result:
+        print("HI")
+        displayController = controller.displaySumFavouritesController()
+        displayresult = displayController.display_sum_favourites(property_id)
+        print(displayresult)
+        if displayresult:
+             
+            flash('display the sum successfully', category='success')
+            return redirect(url_for('boundary.login'))
+        else:
+            flash('Failed display the sum , please try again', category='error')
+    return render_template("SellerPropertyDetails.html",user_name= username)

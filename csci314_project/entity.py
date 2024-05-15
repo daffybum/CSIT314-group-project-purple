@@ -1,6 +1,8 @@
 from flask import session
 from . import mysql
+import random
 from werkzeug.security import check_password_hash
+from werkzeug.security import generate_password_hash
 
 class UserAccount:
     def __init__(self, role= None,username=None, password=None, name=None, surname=None, contact = None, date_of_birth=None,email=None, address=None):
@@ -13,6 +15,8 @@ class UserAccount:
         self.date_of_birth = date_of_birth
         self.email = email
         self.address = address
+
+    
 
     def login(self, username, password, role):
         session['username'] = username
@@ -69,14 +73,17 @@ class UserAccount:
         return user_data
     
     def show_password(self, username):  
-        session['selected_user'] = username # store the username in the session
-        cur = mysql.connection.cursor()
-        query = "SELECT role, username, password FROM useraccount WHERE username = %s"
-        cur.execute(query, (username,))
-        user_data = cur.fetchone()
-        mysql.connection.commit()
-        cur.close()
-        return user_data         
+        try:
+            session['selected_user'] = username # store the username in the session
+            cur = mysql.connection.cursor()
+            query = "SELECT role, username, password FROM useraccount WHERE username = %s"
+            cur.execute(query, (username,))
+            user_data = cur.fetchone()
+            mysql.connection.commit()
+            cur.close()
+            return user_data
+        except Exception as e:
+            print(f"Error getting wrong password: {e}")               
 
     def get_all_users(self):
         try:
@@ -95,40 +102,24 @@ class UserAccount:
             print(f"Error getting username list: {e}")
 
     def search_user(self, username):
-            try:
-                cur = mysql.connection.cursor()
-
-                query = "SELECT username FROM useraccount where username = %s"
-                data = (username,)
-                cur.execute(query,data)
-            
-                result =  cur.fetchone()
-
-                cur.close()
-                if result:
-                    return result[0]
-                else:
-                    return None 
-            except Exception as e:
-                print(f"Error searching user: {e}")
-
-    def edit_profile(self, role,oldUsername, newUsername, name, surname, contact, date_of_birth, email,address):
         try:
             cur = mysql.connection.cursor()
-            query = "UPDATE useraccount SET role = %s, username = %s, name = %s, surname = %s, contact = %s, date_of_birth = %s,email = %s, address = %s  WHERE username = %s"
-            data = (role, newUsername, name, surname, contact,date_of_birth,email, address, oldUsername)
-            print(data)
-            print(query)
-            cur.execute(query, data)
-            mysql.connection.commit()
+
+            query = "SELECT username FROM useraccount where username = %s"
+            data = (username,)
+            cur.execute(query,data)
+        
+            result =  cur.fetchone()
 
             cur.close()
-            return True
+            if result:
+                return result[0]
+            else:
+                return None 
         except Exception as e:
-            print(f"Error changing profile: {e}")
-            return False
-        
-    def edit_profile1(self, oldUsername, name, surname, contact, date_of_birth,email, address):
+            print(f"Error searching user: {e}")
+
+    def edit_profile(self, oldUsername, name, surname, contact, date_of_birth,email, address):
         try:
             cur = mysql.connection.cursor()
             query = "UPDATE useraccount SET name = %s, surname = %s, contact = %s, date_of_birth = %s, email = %s,  address = %s WHERE username = %s"
@@ -144,26 +135,34 @@ class UserAccount:
             return False
     
     def displayallagent(self):
-        cur = mysql.connection.cursor()
-        query = "SELECT username FROM useraccount WHERE role = 'real_estate_agent'"
-        cur.execute(query)
-        agent_list = []
-        for agent_data in cur.fetchall():
-            agent_item = UserAccount(username=agent_data[0])
-            agent_list.append(agent_item)
-        cur.close()
-        print(agent_list)
-        return agent_list
+        try:
+            cur = mysql.connection.cursor()
+            query = "SELECT username FROM useraccount WHERE role = 'real_estate_agent'"
+            cur.execute(query)
+            agent_list = []
+            for agent_data in cur.fetchall():
+                agent_item = UserAccount(username=agent_data[0])
+                agent_list.append(agent_item)
+            cur.close()
+            print(agent_list)
+            return agent_list
+        except Exception as e:
+            print(f"Error displaying agents: {e}")
+            return False
 
     def get_agent_info(self, agentname):  
-        session['agentname'] = agentname # store the username in the session
-        cur = mysql.connection.cursor()
-        query = "SELECT role,username,contact FROM useraccount WHERE username = %s"
-        cur.execute(query, (agentname,))
-        agent_data = cur.fetchone()
-        mysql.connection.commit()
-        cur.close()
-        return agent_data
+        try:
+            session['agentname'] = agentname 
+            cur = mysql.connection.cursor()
+            query = "SELECT role,username,contact FROM useraccount WHERE username = %s"
+            cur.execute(query, (agentname,))
+            agent_data = cur.fetchone()
+            mysql.connection.commit()
+            cur.close()
+            return agent_data
+        except Exception as e:
+            print(f"Error getting agent info: {e}")
+            return False        
     
     def delete_account(self, username):
         try:
@@ -183,9 +182,45 @@ class UserAccount:
         except Exception as e:
             print(f"Error deleting account: {e}")
             return False
-            
-   
+    
+    def update_password(self, username , new_password):
+        try:
+            new_hashed_password = generate_password_hash(new_password)
+            cur = mysql.connection.cursor()
+            query = "UPDATE useraccount SET password = %s WHERE username = %s;"
+            data = (new_hashed_password , username)
+            cur.execute(query, data)
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating your password: {e}")
+            return False   
 
+    def admin_update_password(self, username , new_password):
+        try:
+            new_hashed_password = generate_password_hash(new_password)
+            print(new_password)
+            cur = mysql.connection.cursor()
+            query = "UPDATE useraccount SET password = %s WHERE username = %s;"
+            data = (new_hashed_password , username)
+            cur.execute(query, data)
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating user password: {e}")
+            return False           
+
+    def suspendAccount(self, username):
+        try:
+            cur = mysql.connection.cursor()
+            query = "UPDATE useraccount SET password = NULL WHERE username = %s;"
+            data = (username)
+            cur.execute(query, data)
+            mysql.connection.commit()
+            return True
+        except Exception as e:
+            print(f"Error updating user password: {e}")
+            return False         
 
 
 class PropertyListing:
@@ -236,7 +271,7 @@ class PropertyListing:
             print(f"Error getting property list: {e}")
             
     def get_property_detail(self,property_id):
-        #session['property_id']=property_id
+        session['property_id']=property_id
         cur = mysql.connection.cursor()
         query = "SELECT * FROM properties WHERE property_id = %s"
         data = (property_id,)
@@ -307,7 +342,6 @@ class PropertyListing:
             query = "SELECT * FROM properties where property_postedBy = %s"
             data = (posted_by,)
             cur.execute(query,data)
-            print(query)
             property_list = []
             for property_data in cur.fetchall():
                 property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
@@ -319,6 +353,34 @@ class PropertyListing:
         except Exception as e:
             print(f"Error searching property: {e}")
             
+                
+    def delete_property(self,property_id):
+        try:
+            cur = mysql.connection.cursor()
+            delete_query = "DELETE FROM properties where property_id = %s"
+            delete_query1 = "DELETE FROM favourites where property_id= %s"
+            cur.execute(delete_query, (property_id,))
+            cur.execute(delete_query1, (property_id,))
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error deleting property: {e}")
+            return False
+            
+    def update_property(self,property_name,property_type,property_location,property_price,property_bedroom,property_bathroom,property_size,property_status,property_id):
+        try:
+            cur=mysql.connection.cursor()
+            query = "UPDATE properties SET property_name=%s,property_type=%s,property_location=%s,property_price=%s,property_bedroom=%s,property_bathroom=%s,property_size=%s,property_status=%s WHERE property_id = %s"
+            data = (property_name,property_type,property_location,property_price,property_bedroom,property_bathroom,property_size,property_status,property_id,)
+            cur.execute(query, data)
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error update property: {e}")
+            return False
+                
             
 
             
@@ -354,8 +416,65 @@ class favourite:
         except Exception as e:
             print(f"Error viewing favourites: {e}")
             return False
+
+    def display_favourite(self,buyer_name):
+            try:
+                cur=mysql.connection.cursor()
+                query = "SELECT f.favourite_id,f.property_id,p.property_name,p.property_type, p.property_location, p.property_price, p.property_bedroom, p.property_bathroom, p.property_size, p.property_postedBy, p.property_status FROM Properties p INNER JOIN favourites f ON p.property_id = f.property_id WHERE f.buyer_name = %s;"
+                data = (buyer_name,)
+                cur.execute(query, data)
+                favourite_properties = []
+                for row in cur.fetchall():
+                    favourites = favourite(favourite_id=row[0], property_id=row[1])
+                    property = {
+                        'property_name': row[2],
+                        'property_type': row[3],
+                        'property_location': row[4],
+                        'property_price': row[5],
+                        'property_bedroom': row[6],
+                        'property_bathroom': row[7],
+                        'property_size': row[8],
+                        'property_postedBy': row[9],
+                        'property_status': row[10]
+                    }
+                    favourite_properties.append((favourites, property))
+                cur.close()
+
+                return favourite_properties
+            except Exception as e:
+                print(f"Error viewing favourites: {e}")
+                return []
+
+    def calculate_sum_favourites(self,property_id):
+        try:
+            cur = mysql.connection.cursor()
+            query = """"SELECT property_id, COUNT(*) AS total_properties FROM favourites GROUP BY property_id;"""
+            data = (property_id,)
+            cur.execute(query, data)
+            result = cur.fetchone()
+            cur.close()
+            if result:
+                return result[0]  # Return the calculated sum
+            else:
+                return None  # Or any appropriate value if no result is found
+        except Exception as e:
+            print(f"Error calculating sum of favourites: {e}")
+            return None
+            
+    def display_sum_favourites(property_id):
+        try:
+            cur=mysql.connection.cursor()
+            query = "SELECT total_favourite_id_sum FROM favourites WHERE property_id = %s;"
+            data = (property_id,)
+            cur.execute(query, data)
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error display sum of favourites: {e}")
+            return False
         
-        
+            
 class Review:
     def __init__(self,agent_name=None,review_text=None,rating =None,posted_by=None):
         self.agent_name = agent_name
@@ -376,15 +495,16 @@ class Review:
             print(f"Error saving review: {e}")
             return False
         
-    def displayreview(self,agentname):
+    def displayreview(self,agent_name):
+        session['agentname'] = agent_name 
         try:
             cur=mysql.connection.cursor()
-            query = "SELECT review_text,rating,posted_by from review WHERE agent_name = %s"
-            data = (agentname,)
+            query = "SELECT agent_name,review_text,rating,posted_by from review WHERE agent_name = %s"
+            data = (agent_name,)
             cur.execute(query, data)
             review_list = []
             for review_data in cur.fetchall():
-                review = Review(review_text=review_data[0], rating=review_data[1], posted_by=review_data[2])
+                review = Review(agent_name=review_data[0],review_text=review_data[1], rating=review_data[2], posted_by=review_data[3])
                 review_list.append(review)
             cur.close()
             return review_list

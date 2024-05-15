@@ -152,6 +152,7 @@
           </tr>
           <tr>
             <td>
+              {% if user_name != "admin" %}
               <div class="popup-container">
                 <button class="btn btn-primary" onclick="togglePopup()">Show password</button>    
                 <div class="popup" id="popup">
@@ -162,7 +163,21 @@
                     <button type="submit">Submit</button>
                   </form>
               </div>
+              {% endif %}
+              {% if user_name == "admin" %}
+              <div class="popup-container">
+                <button class="btn btn-primary" onclick="togglePopup()">Change Users password</button>    
+                <div class="popup" id="popup">
+                  <p>Please enter user's new password </p>
+                  <form action="/adminUpdatePassword" method='POST'>
+                    <input type="hidden" id="selectedusername" name="selectedusername" value="{{username}}"/>        
+                    <input type="text" id="new_password" name="new_password" class="form-control" placeholder=" Enter new password here"/>
+                    <button type="submit">Submit</button>
+                  </form>
+              </div>
+              {% endif %}
             </td>
+            
             <td>
               <div class="popup-container">
                 <button class="btn btn-primary" onclick="toggleDeletePopup()">Delete</button>

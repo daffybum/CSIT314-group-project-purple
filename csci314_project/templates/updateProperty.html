@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Update a new Property Listing{% endblock %}
+{% block content %}
+<body>
+    <h2>Update Property Listing Form</h2>
+    <div class="feedback-section" style="height: 600px; overflow-y: auto;">
+        <ol class="list-group list-group-numbered">
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+              <div>
+                <div class="fw-bold" style="display: inline;">ID:</div>
+                <div style="display: inline;">{{ property_id }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Name:</div>
+                <div style="display: inline;">{{ property_name }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Type:</div>
+                <div style="display: inline;">{{ property_type }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Location:</div>
+                <div style="display: inline;">{{ property_location }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Price:</div>
+                <div style="display: inline;">{{ property_price }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Bedroom:</div>
+                <div style="display: inline;">{{ property_bedroom }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Bathroom:</div>
+                <div style="display: inline;">{{ property_bathroom }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Size:</div>
+                <div style="display: inline;">{{ property_size }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Posted By:</div>
+                <div style="display: inline;">{{ property_postedBy }}</div>
+              </div>
+              <div>
+                <div class="fw-bold" style="display: inline;">Status:</div>
+                <div style="display: inline;">{{ property_status }}</div>
+              </div>
+              <div>
+    <form action='/updateProperty' method='POST'>
+        <div>
+            <label for="property_name">Name:</label><br>
+            <input type="text" id="property_name" name="property_name" required><br>
+        </div>
+        
+        <div>
+            <label>Property Type:</label><br>
+            <select name="property_type" id="property_type">
+                <option value="HDB" selected>HDB</option>
+                <option value="condo">Condo</option>
+                <option value="landed">Landed</option>
+            </select>
+        </div>
+        <div>
+        <label for="property_location">Location:</label><br>
+        <input type="text" id="property_location" name="property_location" required><br>
+        </div>
+        
+        <div>
+            <label for="property_price">Price:</label><br>
+            <input type="text" id="property_price" name="property_price" required><br>
+        </div>
+
+        <div>
+            <label for="property_bedroom">Number of Bedrooms:</label><br>
+            <select id="property_bedroom" name="property_bedroom" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select><br><br>
+        </div>
+
+        <div>
+            <label for="property_bathroom">Number of Bathrooms:</label><br>
+            <select id="property_bathroom" name="property_bathroom" required>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+            </select><br><br>
+        </div>
+
+        <div>
+            <label for="property_size">Size (in square meters):</label><br>
+            <input type="text" id="property_size" name="property_size" required><br>
+        </div>
+        <div>
+            <label for="property_status">Status:</label><br>
+            <input type="text" id="property_status" name="property_status" required><br>
+            </div>
+        <div>
+            <button class="btn btn-primary" type="submit">Update</button>
+        </div>
+    </form>
+</body>
+
+
+
+{% endblock %}

@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Buy{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+      <div class="col">
+        <h1 class=>Details</h1>
+      </div>
+
+    </div>
+  
+    
+    <div class="feedback-section" style="height: 600px; overflow-y: auto;">
+      <ol class="list-group list-group-numbered">
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+          <div class="ms-2 me-auto">
+            <div>
+              <div class="fw-bold" style="display: inline;">ID:</div>
+              <div style="display: inline;">{{ property_id }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Name:</div>
+              <div style="display: inline;">{{ property_name }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Type:</div>
+              <div style="display: inline;">{{ property_type }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Location:</div>
+              <div style="display: inline;">{{ property_location }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Price:</div>
+              <div style="display: inline;">{{ property_price }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Bedroom:</div>
+              <div style="display: inline;">{{ property_bedroom }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Bathroom:</div>
+              <div style="display: inline;">{{ property_bathroom }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Size:</div>
+              <div style="display: inline;">{{ property_size }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Posted By:</div>
+              <div style="display: inline;">{{ property_postedBy }}</div>
+            </div>
+            <div>
+              <div class="fw-bold" style="display: inline;">Status:</div>
+              <div style="display: inline;">{{ property_status }}</div>
+            </div>
+            <div style="display: inline;">
+              <form action="/displaySumFavourites" method="GET">
+                <button type="submit" id="details-btn" class="btn btn-primary">View Favorites</button>
+                <div>
+                  <div class="fw-bold" style="display: inline;">View Count:</div>
+                  <div id="details-view-count" style="display: inline;">{{ details_view_count }}</div>
+                </div>  
+              </form>
+              <form action="/sellPropertyDetails" class="ms-auto" method="POST">
+                <button type="submit" id="update-btn" class="btn btn-primary">Update Count</button>
+                <div>
+                  <div class="fw-bold" style="display: inline;">View Count:</div>
+                  <div id="update-view-count" style="display: inline;">{{ update_view_count }}</div>
+                </div> 
+              </form>
+            </div>
+               
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+
+{% endblock %}

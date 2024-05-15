@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}Uplad a new Property Listing{% endblock %}
+{% block title %}Update a new Property Listing{% endblock %}
 {% block content %}
 <body>
     <h2>Property Listing Form</h2>
     <form method='POST'>
     <div>
-        <label for="property_name">Name:</label><br>
+        <label for="property_name">Title:</label><br>
         <input type="text" id="property_name" name="property_name" required><br>
     </div>
         
@@ -18,7 +18,7 @@
             </select>
         </div>
         <div>
-        <label for="property_location">Location:</label><br>
+        <label for="property_location"> Nearest MRT Location:</label><br>
         <input type="text" id="property_location" name="property_location" required><br>
         </div>
         

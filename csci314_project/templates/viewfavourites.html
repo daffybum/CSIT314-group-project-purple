@@ -1,66 +1,68 @@
 {% extends "base.html" %}
-{% block title %}Favourites{% endblock %}
+{% block title %}View Favourites List{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row">
-      <div class="col">
-        <h1 class="float-start feedback-heading">View Favourites</h1>
-      </div>
 
-    </div>
-  
-    
-    <div class="feedback-section" style="height: 600px; overflow-y: auto;">
-      <ol class="list-group list-group-numbered">
-        {% for property in property_list|reverse %}
-        <li class="list-group-item d-flex justify-content-between align-items-start">
-          <div class="ms-2 me-auto">
-            <div>
-              <div class="fw-bold" style="display: inline;">ID:</div>
-              <div style="display: inline;">{{ property.property_id }}</div>
-              
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Name:</div>
-              <div style="display: inline;">{{ property.property_name }}</div>
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Type:</div>
-              <div style="display: inline;">{{ property.property_type }}</div>
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Price:</div>
-              <div style="display: inline;">{{ property.property_price }}</div>
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Bedroom:</div>
-              <div style="display: inline;">{{ property.property_bedroom }}</div>
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Bathroom:</div>
-              <div style="display: inline;">{{ property.property_bathroom }}</div>
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Size:</div>
-              <div style="display: inline;">{{ property.property_size }}</div>
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Posted By:</div>
-              <div style="display: inline;">{{ property.property_postedBy }}</div>
-            </div>
-            <div>
-              <div class="fw-bold" style="display: inline;">Status:</div>
-              <div style="display: inline;">{{ property.property_status }}</div>
-            </div>
-            <div>
-              
-            </div>
-          </div>
-        </li>
-        {% endfor %}
-      </ol>
+<div class="container">
+  <div class="row">
+    <div class="col">
+      <h1 class="float-start feedback-heading">Favourites List</h1>
     </div>
   </div>
 
+  <div class="feedback-section" style="height: 600px; overflow-y: auto;">
+    <ol class="list-group list-group-numbered">
+      {% for favourite, property in favourites|reverse %}
+      <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+          <div>
+            <div class="fw-bold" style="display: inline;">Favourites ID:</div>
+            <div style="display: inline;">{{ favourite.favourite_id }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Properties Id:</div>
+            <div style="display: inline;">{{ favourite.property_id }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Name:</div>
+            <div style="display: inline;">{{ property.property_name }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Type:</div>
+            <div style="display: inline;">{{ property.property_type }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Location:</div>
+            <div style="display: inline;">{{ property.property_location }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Price:</div>
+            <div style="display: inline;">{{ property.property_price }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Bedroom:</div>
+            <div style="display: inline;">{{ property.property_bedroom }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Bathroom:</div>
+            <div style="display: inline;">{{ property.property_bathroom }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Size:</div>
+            <div style="display: inline;">{{ property.property_size }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Posted By:</div>
+            <div style="display: inline;">{{ property.property_postedBy }}</div>
+          </div>
+          <div>
+            <div class="fw-bold" style="display: inline;">Status:</div>
+            <div style="display: inline;">{{ property.property_status }}</div>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</div>
 {% endblock %}

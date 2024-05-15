@@ -2,6 +2,7 @@
 {% block title %}Buy{% endblock %}
 
 {% block content %}
+
 <div class="container">
     <div class="row">
       <div class="col">
@@ -64,7 +65,21 @@
             <div>
               <div class="fw-bold" style="display: inline;">Status:</div>
               <div style="display: inline;">{{ property.property_status }}</div>
-            </div>         
+            </div> 
+            <div style="display: inline;">
+              <form action="/sellPropertyDetails2" method="POST">
+                <input type="hidden" name="property_id" value="{{ property.property_id }}">
+                <button type="submit" class="btn btn-primary">Details</button>  
+              </form>
+              <form action="/sellPropertyDetails"  class="ms-auto" method="POST">
+                <input type="hidden" name="property_id" value="{{ property.property_id }}">
+                <button type="submit" class="btn btn-primary">Update</button>  
+              </form>  
+              <form action="/deleteProperty" method="POST">
+                <input type="hidden" name="property_id" value="{{ property.property_id }}">
+                <button type="submit" class="btn btn-primary">Delete</button>  
+              </form>
+            </div>        
           </div>
         </li>
         {% endfor %}

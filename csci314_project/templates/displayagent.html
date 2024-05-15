@@ -24,7 +24,7 @@
             <input type="hidden" name="agentname" value="{{ agent.username }}">
             <button type="submit" class="btn btn-primary">Rate and Review</button>
           </form>
-          <form action="/viewReviewRating"  class="ms-auto">
+          <form action="/viewReviewRating"  class="ms-auto" method="POST">
             <input type="hidden" name="agentname" value="{{ agent.username }}">
             <button type="submit" class="btn btn-primary">View rate and review</button>
           </form>

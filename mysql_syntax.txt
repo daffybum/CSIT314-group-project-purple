@@ -1,4 +1,29 @@
-CREATE TABLE Properties (
+CREATE TABLE userprofiles (
+ role VARCHAR(255) PRIMARY KEY ,
+ description VARCHAR(255),
+ status VARCHAR(255) NOT NULL DEFAULT 'Active'
+);
+INSERT INTO userprofiles (role, description)
+VALUES ('buyer', 'Role for buyers'),
+('seller', 'Role for selller'),
+('real_estate_agent', 'Role for agents'),
+('admin', 'Role for System Admin');
+
+CREATE TABLE useraccount (
+  role varchar(255) DEFAULT NULL,
+  username varchar(255) NOT NULL UNIQUE,
+  password varchar(255) DEFAULT NULL,
+  name varchar(255) DEFAULT NULL,
+  surname varchar(255) DEFAULT NULL,
+  contact varchar(255) DEFAULT NULL,
+  date_of_birth varchar(255) DEFAULT NULL,
+  email varchar(255) DEFAULT NULL,
+  address varchar(255) DEFAULT NULL,
+ CONSTRAINT fk_role FOREIGN KEY (role) REFERENCES userprofiles(role)
+);
+
+
+CREATE TABLE properties (
     property_id INT AUTO_INCREMENT PRIMARY KEY,
     property_name VARCHAR(255) NOT NULL,
     property_type VARCHAR(255) NOT NULL,
@@ -8,22 +33,10 @@ CREATE TABLE Properties (
     property_bathroom INT NOT NULL,
     property_size VARCHAR(255) NOT NULL,
     property_postedBy VARCHAR(255) NOT NULL,
-    property_status VARCHAR(255) NOTNULL DEFAULT 'selling',
+    property_status VARCHAR(255) NOT NULL DEFAULT 'selling',
     CONSTRAINT FK_propertypostedBy FOREIGN KEY (property_postedBy) REFERENCES useraccount(username)
 );
 
-CREATE TABLE useraccount (
-  id INT AUTO_INCREMENT PRIMARY KEY,
-  role varchar(255) DEFAULT NULL,
-  username varchar(255) NOT NULL UNIQUE,
-  password varchar(255) DEFAULT NULL,
-  name varchar(255) DEFAULT NULL,
-  surname varchar(255) DEFAULT NULL,
-  contact varchar(255) DEFAULT NULL,
-  date_of_birth varchar(255) DEFAULT NULL,
-  email varchar(255) DEFAULT NULL,
-  address varchar(255) DEFAULT NULL
-)
 
 CREATE TABLE favourites (
     favourite_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
@@ -33,12 +46,18 @@ CREATE TABLE favourites (
     CONSTRAINT FK_property_id FOREIGN KEY (property_id) REFERENCES Properties(property_id)
    );
 
-CREATE TABLE Review (
+
+CREATE TABLE review (
     agent_name VARCHAR(255) NOT NULL PRIMARY KEY,
     review_text TEXT NOT NULL,
     rating INT NOT NULL,
     posted_by VARCHAR(255) NOT NULL,
     CONSTRAINT FK_agent_name FOREIGN KEY (agent_name) REFERENCES useraccount(username),
-    CONSTRAINT FK_posted_by FOREIGN KEY (posted_by) REFERENCES useraccount(username),
-    CONSTRAINT UC_agent_review_unique UNIQUE (agent_name, posted_by)
+    CONSTRAINT FK_posted_by FOREIGN KEY (posted_by) REFERENCES useraccount(username)
+);
+
+CREATE TABLE detail (
+    detail_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    property_id INT NOT NULL,
+    CONSTRAINT FK_detail_property_id FOREIGN KEY (property_id) REFERENCES properties(property_id)
 );

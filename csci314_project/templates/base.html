@@ -27,14 +27,16 @@
         <!-- navbar links -->
         <div class="collapse navbar-collapse justify-content-end align-left" id="main-nav">
           <ul class="navbar-nav">
-              {% if user_role == "buyer" %}
-                  <li class="nav-item">
-                      <a class="nav-link" href="/buy">Buy</a>
-                  </li>
-              {% elif user_role in ["seller", "real_estate_agent"] %}
-                  <li class="nav-item">
-                      <a class="nav-link" href="/sell">Sell</a>
-                  </li>
+              {% if user_role in ["buyer", "real_estate_agent"] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/buy">Buy</a>
+                </li>
+              {% endif %}
+          
+              {% if user_role in ["seller", "real_estate_agent"] %}
+                <li class="nav-item">
+                    <a class="nav-link" href="/sell">Sell</a>
+                </li>
               {% endif %}
       
               {% if user_role in ["buyer", "seller"] %}

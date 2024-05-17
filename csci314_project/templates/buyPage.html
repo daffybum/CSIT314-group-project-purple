@@ -2,6 +2,20 @@
 {% block title %}Buy{% endblock %}
 
 {% block content %}
+<script>
+  document.getElementById('searchForm').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent the default form submission
+      
+      // Get the action based on which button was clicked
+      var action = event.submitter.getAttribute('data-action');
+      
+      // Set the action of the form dynamically
+      document.getElementById('searchForm').action = action;
+      
+      // Submit the form
+      this.submit();
+  });
+</script>
 <div class="container">
     <div class="row">
       <div class="col">
@@ -16,6 +30,17 @@
       <input type="text" name="inputProperty" class="form-control" placeholder="Enter a location to search"> 
       <button class="btn btn-primary">Search</button>
       </form>
+      <form action="/viewSearchedNewProperty" method="post">
+        <input type="text" name="inputProperty" class="form-control" placeholder="Enter a location to search"> 
+        <button class="btn btn-primary">Search New Property</button>
+      </form>
+      <form action="/viewSearchedOldProperty" method="post">
+        <input type="text" name="inputProperty" class="form-control" placeholder="Enter a location to search"> 
+        <button class="btn btn-primary">Search Old Property</button>
+      </form>
+    </div>
+    <br>
+    <div>
       <form action="/viewSellingProperty" method="POST">
         <button type="submit" class="btn btn-primary">View Selling</button>
       </form> 

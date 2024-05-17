@@ -4,6 +4,45 @@ import random
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
+from datetime import datetime, timedelta 
+
+
+class UserProfile:
+    def __init__(self, role= None,description=None, status = None):
+        self.role = role
+        self.description= description
+        self.status = status
+        
+    def get_all_role(self):
+
+        try:
+                cur = mysql.connection.cursor()
+
+                query = "SELECT * FROM userprofiles"
+                cur.execute(query)
+                profile_list = []
+                for profile_data in cur.fetchall():
+                    profile_item = UserProfile(role=profile_data[0], description=profile_data[1], status=profile_data[2])
+                    profile_list.append(profile_item)
+                cur.close()
+            
+                return profile_list
+            
+        except Exception as e:
+            print(f"Error display property: {e}")
+
+    def update_description(self,role,new_description):
+        try:
+            print('123')
+            cur = mysql.connection.cursor()
+            query = "UPDATE userprofiles SET description = %s WHERE role = %s;"
+            cur.execute(query,(new_description,role))
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error updating")
+
 class UserAccount:
     def __init__(self, role= None,username=None, password=None, name=None, surname=None, contact = None, date_of_birth=None,email=None, address=None):
         self.role = role
@@ -16,10 +55,69 @@ class UserAccount:
         self.email = email
         self.address = address
 
+    def generate_users(self):
+        for i in range(5):  # 100 rows
+            cur = mysql.connection.cursor()
+            role = random.choice(['buyer', 'seller', 'real_estate_agent'])
+            username = ''
+            vowels = 'aeiou'
+            consonants = 'bcdfghjklmnpqrstvwxyz'
+            for i in range(5):
+                if i % 2 == 0:  # Even position, add a consonant
+                    username += random.choice(consonants)
+                else:  # Odd position, add a vowel
+                    username += random.choice(vowels)
+            
+            hashed_password=generate_password_hash(username)
+            password = hashed_password
+            
+            name = username
+            surname = username
+            contact = ''.join(random.choice('0123456789') for _ in range(8))
+
+            start_date = datetime(1900, 1, 1)
+            end_date = datetime(2004, 12, 31)
+            delta = end_date - start_date
+            random_days = random.randint(0, delta.days)
+            random_date = start_date + timedelta(days=random_days)
+            date_of_birth = random_date.strftime('%Y-%m-%d')
+            email = f"{username}@example.com"
+            stations = [
+            "Jurong East", "Bukit Batok", "Bukit Gombak", "Choa Chu Kang", "Yew Tee",
+            "Kranji", "Marsiling", "Woodlands", "Admiralty", "Sembawang",
+            "Canberra", "Yishun", "Khatib", "Yio Chu Kang", "Ang Mo Kio",
+            "Bishan", "Braddell", "Toa Payoh", "Novena", "Newton",
+            "Orchard", "Somerset", "Dhoby Ghaut", "City Hall", "Raffles Place",
+            "Marina Bay", "Marina South Pier", "Pasir Ris", "Tampines", "Simei",
+            "Tanah Merah", "Expo", "Changi Airport", "Tanjong Pagar", "Outram Park",
+            "Tiong Bahru", "Redhill", "Queenstown", "Commonwealth", "Buona Vista",
+            "Dover", "Clementi", "Jurong East", "Chinese Garden", "Lakeside",
+            "Boon Lay", "Pioneer", "Joo Koon", "Gul Circle", "Tuas Crescent",
+            "Tuas West Road", "Tuas Link"
+            ]
+            address = random.choice(stations)
+            query = "INSERT INTO useraccount (role, username, password, name, surname, contact, date_of_birth, email, address) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            data = (role, username, password, name, surname, contact, date_of_birth,email, address)
+            cur.execute(query, data)
+
+
     
+        query = "SELECT username FROM useraccount"
+        cur.execute(query)
+        
+        results = cur.fetchall()
+        
+        usernames = [row[0] for row in results]
+        mysql.connection.commit()
+        cur.close()
+        
+        print("Created users: " , usernames)
+        return True
+
 
     def login(self, username, password, role):
         session['username'] = username
+        session['role'] = role
         cur = mysql.connection.cursor()
 
         query = "SELECT password FROM useraccount WHERE username = %s AND role = %s"
@@ -71,19 +169,7 @@ class UserAccount:
         mysql.connection.commit()
         cur.close()
         return user_data
-    
-    def show_password(self, username):  
-        try:
-            session['selected_user'] = username # store the username in the session
-            cur = mysql.connection.cursor()
-            query = "SELECT role, username, password FROM useraccount WHERE username = %s"
-            cur.execute(query, (username,))
-            user_data = cur.fetchone()
-            mysql.connection.commit()
-            cur.close()
-            return user_data
-        except Exception as e:
-            print(f"Error getting wrong password: {e}")               
+               
 
     def get_all_users(self):
         try:
@@ -123,16 +209,14 @@ class UserAccount:
         try:
             cur = mysql.connection.cursor()
             query = "UPDATE useraccount SET name = %s, surname = %s, contact = %s, date_of_birth = %s, email = %s,  address = %s WHERE username = %s"
-            data = ( name, surname, contact,date_of_birth, email, address, oldUsername)
-            print(data)
-            cur.execute(query, data)
+            cur.execute(query, ( name, surname, contact,date_of_birth, email, address, oldUsername))
             mysql.connection.commit()
-           
-            cur.close()
             return True
         except Exception as e:
-            print(f"Error changing profile: {e}")
+            # Log the exception here
+            print(f"An error occurred: {e}")
             return False
+    
     
     def displayallagent(self):
         try:
@@ -167,15 +251,23 @@ class UserAccount:
     def delete_account(self, username):
         try:
             cur = mysql.connection.cursor()
-            delete_query = "DELETE FROM useraccount WHERE username = %s"
-            delete_query1 = "DELETE FROM properties WHERE property_postedBy = %s"
-            delete_query2 = "DELETE FROM favourites WHERE buyer_name = %s"
-            delete_query3 = "DELETE FROM review WHERE posted_by = %s"
-            
-            cur.execute(delete_query3, (username,))
-            cur.execute(delete_query2, (username,))
-            cur.execute(delete_query1, (username,))
-            cur.execute(delete_query, (username,))
+            delete_review_agent_query = "DELETE FROM review WHERE agent_name = %s"
+            delete_review_posted_query = "DELETE FROM review WHERE posted_by = %s"
+            cur.execute(delete_review_agent_query, (username,))
+            cur.execute(delete_review_posted_query, (username,))
+
+            # Delete all entries from favourites where buyer_name is the username
+            delete_favourites_query = "DELETE FROM favourites WHERE buyer_name = %s"
+            cur.execute(delete_favourites_query, (username,))
+
+            # Delete all properties posted by the user
+            delete_properties_query = "DELETE FROM properties WHERE property_postedBy = %s"
+            cur.execute(delete_properties_query, (username,))
+
+            # Finally, delete the user account
+            delete_user_query = "DELETE FROM useraccount WHERE username = %s"
+            cur.execute(delete_user_query, (username,))
+
             mysql.connection.commit()
             cur.close()
             return True
@@ -236,8 +328,59 @@ class PropertyListing:
         self.property_status = property_status
         self.property_postedBy = property_postedBy
         
+    def generate_properties(self):
+        
+        stations = [
+        "Jurong East", "Bukit Batok", "Bukit Gombak", "Choa Chu Kang", "Yew Tee",
+        "Kranji", "Marsiling", "Woodlands", "Admiralty", "Sembawang",
+        "Canberra", "Yishun", "Khatib", "Yio Chu Kang", "Ang Mo Kio",
+        "Bishan", "Braddell", "Toa Payoh", "Novena", "Newton",
+        "Orchard", "Somerset", "Dhoby Ghaut", "City Hall", "Raffles Place",
+        "Marina Bay", "Marina South Pier", "Pasir Ris", "Tampines", "Simei",
+        "Tanah Merah", "Expo", "Changi Airport", "Tanjong Pagar", "Outram Park",
+        "Tiong Bahru", "Redhill", "Queenstown", "Commonwealth", "Buona Vista",
+        "Dover", "Clementi", "Jurong East", "Chinese Garden", "Lakeside",
+        "Boon Lay", "Pioneer", "Joo Koon", "Gul Circle", "Tuas Crescent",
+        "Tuas West Road", "Tuas Link"
+        ]
+        for i in range(5):
+            cur = mysql.connection.cursor()
+            location = random.choice(stations)
+            type = random.choice(['HDB', 'condo', 'landed'])
+            property_name = f' A {type} house at {location} MRT station '
+            property_type = type
+            property_location = location
+            random_number = random.uniform(1000, 1000000)
+            price = round(random_number, 2)
 
+            property_price = price
+            property_bedroom = random.choice(['1,2,3,4,5'])
+            property_bathroom = random.choice(['1,2,3,4,5'])
+            property_size = random.randint(100, 2000)
+            property_status = random.choice(['selling','sold'])
+            getusername_query = "SELECT username FROM useraccount WHERE role NOT IN ('buyer', 'admin');"
+            cur.execute(getusername_query)
+            results = cur.fetchall()
+            usernames = [row[0] for row in results]
+            property_postedBy = random.choice(usernames)
+            query = "INSERT INTO properties (property_name, property_type, property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy, property_status) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            data = (property_name,property_type , property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy, property_status)
+            cur.execute(query, data)
 
+        query = "SELECT property_name FROM properties"
+        cur.execute(query)
+        
+        results = cur.fetchall()
+        
+        properties = [row[0] for row in results]
+        mysql.connection.commit()
+        cur.close()
+        
+        print("Created properties: " , properties)
+        return True
+
+        
+        
     def submit_property_listing(self,property_name,property_type,property_location,property_price, property_bedroom,property_bathroom,property_size, property_postedBy):
         try:
            cur = mysql.connection.cursor()
@@ -272,16 +415,44 @@ class PropertyListing:
             
     def get_property_detail(self,property_id):
         session['property_id']=property_id
-        cur = mysql.connection.cursor()
-        query = "SELECT * FROM properties WHERE property_id = %s"
-        data = (property_id,)
-        cur.execute(query, data)
-        property_data = cur.fetchone()
-        mysql.connection.commit()
+        try:
+            cur = mysql.connection.cursor()
+
+            # Fetch property detail
+            fetch_query = "SELECT * FROM properties WHERE property_id = %s"
+            cur.execute(fetch_query, (property_id,))
+            property_data = cur.fetchone()
+
+            # Insert property_id into detail table
+            insert_query = "INSERT INTO detail (property_id) VALUES (%s)"
+            cur.execute(insert_query, (property_id,))
+            
+            mysql.connection.commit()  # Commit both the SELECT and INSERT operations
+
+        except Exception as e:
+            # Log the exception here
+            print(f"An error occurred: {e}")
+            mysql.connection.rollback()  # Rollback the transaction in case of error
+            property_data = None
+        finally:
+            if cur is not None:
+                cur.close()
         
-        cur.close()
         return property_data
     
+    def get_property_detail2(self,property_id):
+        session['property_id']=property_id
+        cur = mysql.connection.cursor()
+
+        # Fetch property detail
+        fetch_query = "SELECT * FROM properties WHERE property_id = %s"
+        cur.execute(fetch_query, (property_id,))
+        property_data = cur.fetchone()
+        mysql.connection.commit()
+        cur.close()
+        return property_data
+        
+            
     def search_property(self, property_location):
         try:
             cur = mysql.connection.cursor()
@@ -387,22 +558,69 @@ class PropertyListing:
 class favourite:
     def __init__(self,favourite_id=None,buyer_name=None,property_id=None):
         self.favourite_id = favourite_id
-        self.buyer_id = buyer_name
+        self.buyer_name = buyer_name
         self.property_id = property_id
 
+    def generate_favourites(self):
+        
+        for i in range(5):
+            try:
+                cur = mysql.connection.cursor()
+                
+                getbuyerid_query = "SELECT username FROM useraccount WHERE role = 'buyer';"
+                cur.execute(getbuyerid_query)
+                results = cur.fetchall()
+                buyers = [row[0] for row in results]
+                buyer_name = random.choice(buyers)
+                propertyid_query = "SELECT property_id FROM properties;"
+                cur.execute(propertyid_query)
+                results = cur.fetchall()
+                propertyid = [row[0] for row in results]
+                property_id = random.choice(propertyid)
+                
+                query = "INSERT INTO favourites (buyer_name, property_id) VALUES (%s, %s)"
+                data = (buyer_name, property_id)
+                cur.execute(query, data)
+            except Exception as e:
+
+                print(f"An error occurred: {e}")
+                pass
+
+
+        mysql.connection.commit()
+        cur.close()
+        return True
+    
     def save_favourite(self,buyer_name,property_id):
-        try:
-            #session['selectedpropertys_id']=property_id
-            cur=mysql.connection.cursor()
-            query = "INSERT INTO favourites (buyer_name,property_id) VALUES(%s,%s)"
-            data = (buyer_name, property_id,)
-            cur.execute(query, data)
-            mysql.connection.commit()
-            cur.close()
-            return True
-        except Exception as e:
-            print(f"Error saving feedback: {e}")
-            return False
+            session['property_id']=property_id
+            try:
+                cur = mysql.connection.cursor()
+
+                # Fetch property detail
+                fetch_query = "SELECT * FROM properties "
+                cur.execute(fetch_query)
+                property_list = []
+                for property_data in cur.fetchall():
+                    # Assuming PropertyListing is defined elsewhere and takes the same arguments
+                    property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
+                    property_list.append(property_item)
+
+                # Insert property_id into detail table
+                insert_query = "INSERT INTO favourites (buyer_name,property_id) VALUES(%s,%s)"
+                cur.execute(insert_query, (buyer_name,property_id,))
+                
+                mysql.connection.commit()  # Commit both the SELECT and INSERT operations
+
+            except Exception as e:
+                # Log the exception here
+                print(f"An error occurred: {e}")
+                mysql.connection.rollback()  # Rollback the transaction in case of error
+                return False
+            finally:
+                if cur is not None:
+                    cur.close()
+            
+            return property_list
     
     def display_favourite(self,buyer_name):
         try:
@@ -445,34 +663,25 @@ class favourite:
                 print(f"Error viewing favourites: {e}")
                 return []
 
-    def calculate_sum_favourites(self,property_id):
+    def display_sum_favourites(self, property_id):
         try:
             cur = mysql.connection.cursor()
-            query = """"SELECT property_id, COUNT(*) AS total_properties FROM favourites GROUP BY property_id;"""
-            data = (property_id,)
-            cur.execute(query, data)
-            result = cur.fetchone()
-            cur.close()
-            if result:
-                return result[0]  # Return the calculated sum
-            else:
-                return None  # Or any appropriate value if no result is found
-        except Exception as e:
-            print(f"Error calculating sum of favourites: {e}")
-            return None
-            
-    def display_sum_favourites(property_id):
-        try:
-            cur=mysql.connection.cursor()
-            query = "SELECT total_favourite_id_sum FROM favourites WHERE property_id = %s;"
-            data = (property_id,)
-            cur.execute(query, data)
+            query = "SELECT COUNT(*) AS total_properties FROM favourites WHERE property_id = %s;"
+            cur.execute(query, (property_id,))
+            total_properties = cur.fetchone()
             mysql.connection.commit()
             cur.close()
-            return True
+            
+            #if total_properties:
+                #print(f"Total properties for property ID {property_id}: {total_properties[0]}")
+            return total_properties
+            #else:
+                #return False
         except Exception as e:
-            print(f"Error display sum of favourites: {e}")
+            print(f"Error displaying properties: {e}")
             return False
+
+            
         
             
 class Review:
@@ -482,18 +691,60 @@ class Review:
         self.rating = rating
         self.posted_by = posted_by
 
-    def givereview(self,username,review,rating,postedby):
-        try:
-            cur=mysql.connection.cursor()
-            query = "INSERT INTO review (agent_name,review_text,rating,posted_by) VALUES(%s,%s,%s,%s)"
-            data = (username,review,rating,postedby)
-            cur.execute(query, data)
-            mysql.connection.commit()
-            cur.close()
-            return True
-        except Exception as e:
-            print(f"Error saving review: {e}")
-            return False
+    def generate_reviews(self):
+        
+
+        for i in range(5):
+            try:
+                cur = mysql.connection.cursor()
+                getagent_query = "SELECT username FROM useraccount WHERE role = 'real_estate_agent';"
+                cur.execute(getagent_query)
+                agentresults = cur.fetchall()
+                agents = [row[0] for row in agentresults]
+                agent_name = random.choice(agents)
+                
+                review_text = random.choice(['Good','bad','could better','amazing','horrible'])
+                rating = random.choice(['1','2','3','4','5'])
+                
+                getusername_query = "SELECT username FROM useraccount WHERE role NOT IN ('real_estate_agent', 'admin');"
+                cur.execute(getusername_query)
+                results = cur.fetchall()
+                usernames = [row[0] for row in results]
+                posted_by = random.choice(usernames)
+                
+                query = "INSERT INTO review (agent_name,review_text,rating, posted_by ) VALUES (%s, %s, %s, %s)"
+                data = (agent_name, review_text, rating, posted_by)
+                cur.execute(query, data)
+            except Exception as e:
+
+                print(f"An error occurred: {e}")
+                pass
+
+
+        mysql.connection.commit()
+        cur.close()
+        
+        return True
+    
+    def givereview(self,agentname,review,rating,postedby):
+            try:
+                cur=mysql.connection.cursor()
+                fetch_query = "SELECT role,username,contact FROM useraccount WHERE username = %s"
+                cur.execute(fetch_query, (agentname,))
+                agent_data = cur.fetchone()
+                insert_query = "INSERT INTO review (agent_name,review_text,rating,posted_by) VALUES(%s,%s,%s,%s)"
+                cur.execute(insert_query, ((agentname,review,rating,postedby,)))
+                mysql.connection.commit()  # Commit both the SELECT and INSERT operations
+            except Exception as e:
+            # Log the exception here
+                print(f"An error occurred: {e}")
+                mysql.connection.rollback()  # Rollback the transaction in case of error
+                return False
+            finally:
+                if cur is not None:
+                    cur.close()
+        
+            return agent_data
         
     def displayreview(self,agent_name):
         session['agentname'] = agent_name 
@@ -512,4 +763,30 @@ class Review:
         except Exception as e:
             print(f"Error saving review: {e}")
             return False
+        
+        
+class detail:
+    def _init_(self,detail_id=None,property_id=None):
+        self.detail_id = detail_id
+        self.property_id = property_id
+
+    
+    def display_sum_click_detail(self, property_id):
+            try:
+                cur = mysql.connection.cursor()
+                query = "SELECT COUNT(*) AS total_properties_num FROM detail WHERE property_id = %s;"
+                cur.execute(query, (property_id,))
+                total_properties = cur.fetchone()
+                mysql.connection.commit()
+                cur.close()
+                
+                #if total_properties:
+                    #print(f"Total properties for property ID {property_id}: {total_properties[0]}")
+                return total_properties
+                #else:
+                    #return False
+            except Exception as e:
+                print(f"Error displaying properties: {e}")
+                return False
+
 

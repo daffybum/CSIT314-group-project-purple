@@ -13,7 +13,21 @@ class CreateUserAccController:
         self.userAccount = entity.UserAccount()
     def createUserAccount(self, userAcc):
         return self.userAccount.createUserAcc(userAcc)
-        
+
+class getRoleListController:
+    def __init__(self):
+        self.userprofile = entity.UserProfile()
+    
+    def get_all_role(self):
+        return self.userprofile.get_all_role()
+
+class updatedescriptionController:
+    def __init__(self):
+        self.userprofile = entity.UserProfile()
+    
+    def update_description(self, role , new_description):
+        return self.userprofile.update_description(role, new_description)
+            
 class DisplayController:
     def __init__(self):
         self.userAccount = entity.UserAccount()
@@ -26,11 +40,6 @@ class DisplayAccountController:
     def get_user_account(self, username):
         return self.userAccount.get_user_account(username)
     
-class DisplayPasswordController:
-    def __init__(self):
-        self.userAccount = entity.UserAccount()
-    def get_user_password(self, username):
-        return self.userAccount.show_password(username)
 
 class ViewBuyController:
     def __init__(self):
@@ -55,6 +64,9 @@ class displayPropertyDetailController():
     
     def displayPropertyDetails(self, property_id):
         return self.propertyListing.get_property_detail(property_id)
+    
+    def displayPropertyDetails2(self, property_id):
+        return self.propertyListing.get_property_detail2(property_id)
 
 class saveFavouriteController():
     def __init__(self):
@@ -107,8 +119,8 @@ class viewPersonalpropertyController():
 class GiveReviewController():
     def __init__(self):
         self.review = entity.Review()
-    def give_review(self,username,review,rating,postedby):
-        return self.review.givereview(username,review,rating,postedby)
+    def give_review(self,agentname,review,rating,postedby):
+        return self.review.givereview(agentname,review,rating,postedby)
 
 class DisplayAgentDetailController:
     def __init__(self):
@@ -162,18 +174,42 @@ class ViewFavouriteController():
 class displaySumFavouritesController:
      def __init__(self):
         self.favourite = entity.favourite()
+        self.propertyListing = entity.PropertyListing()
         
      def display_sum_favourites(self, property_id):
         print('234')
         return self.favourite.display_sum_favourites(property_id)
+        
+     def displayPropertyDetails(self, property_id):
+        return self.propertyListing.get_property_detail(property_id)
+     
     
-class calculateSumFavouritesController:
-     def __init__(self):
-        self.favourite = entity.favourite()  
-     def calculate_sum_favourites(self, property_id):
-        return self.favourite.calculate_sum_favourites(property_id)
       
 #ADMIN
+class generateuseraccountController:
+    def __init__(self):
+        self.useraccount = entity.UserAccount()
+    def generateUseraccount(self):
+        return self.useraccount.generate_users()
+
+class generatepropertiesController:
+    def __init__(self):
+        self.useraccount = entity.PropertyListing()
+    def generateproperties(self):
+        return self.useraccount.generate_properties()    
+    
+class generatefavouritesController:
+    def __init__(self):
+        self.useraccount = entity.favourite()
+    def generatefavourites(self):
+        return self.useraccount.generate_favourites()  
+
+class generatereviewController:
+    def __init__(self):
+        self.useraccount = entity.Review()
+    def generatereview(self):
+        return self.useraccount.generate_reviews()  
+
 class GetAllUsersController:
     def __init__(self):
         self.userAccount = entity.UserAccount()
@@ -191,9 +227,12 @@ class SearchUserController:
 class EditProfileController:
     def __init__(self):
         self.userAccount = entity.UserAccount()
+    def get_user_info(self,selected_user):
+        return self.userAccount.get_user_info(selected_user)
+        
     def edit_profile(self,selected_user, name, surname, contact, date_of_birth, email, address ):
         return self.userAccount.edit_profile( selected_user,name, surname,contact,date_of_birth,  email,address)
-        
+    
 class adminupdatePasswordController:
     def __init__(self):
         self.userAccount = entity.UserAccount()
@@ -207,3 +246,15 @@ class adminsuspendaccountController:
 
     def admin_update_password(self, username):
         return self.userAccount.admin_update_password(username)
+    
+class displaySumDetailController():
+    def __init__(self):
+        self.detail = entity.detail()
+        self.propertyListing = entity.PropertyListing()
+    
+    def displaySumDetail(self, property_id):
+        return self.detail.display_sum_click_detail(property_id)
+    
+    def displayPropertyDetails2(self, property_id):
+        return self.propertyListing.get_property_detail2(property_id)
+

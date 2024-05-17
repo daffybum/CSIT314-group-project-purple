@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}View All Users{% endblock %}
+
+{% block content %}
+<style>
+    @import url("https://fonts.googleapis.com/css2?family=Poppins:weight@100;200;300;400;500;600;700;800&display=swap");
+
+    .container1 {
+    width: 65%; 
+    margin-top: 100px;
+    margin-left: 380px;  
+    background-color: #ffffff; 
+    padding: 25px;
+    border-radius: 15px;
+    text-align: center;
+    }
+
+    .search{
+       position: relative;
+       box-shadow: 0 0 40px rgba(51, 51, 51, .1);
+         
+    }
+
+    .search input{
+
+    height: 60px;
+    text-indent: 25px;
+    border: 2px solid #d6d4d4;
+
+
+    }
+
+
+    .search input:focus{
+
+    box-shadow: none;
+    border: 2px solid blue;
+
+
+    }
+
+    .search .fa-search{
+
+    position: absolute;
+    top: 20px;
+    left: 16px;
+
+    }
+
+    .search button{
+
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    height: 50px;
+    width: 110px;
+    background: blue;
+
+    }
+    .popup {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border: 2px solid #d6d4d4;
+        border-radius: 10px;
+        z-index: 1000;
+    }
+
+    .popup form {
+        margin-top: 10px;
+    }
+
+    .popup form button {
+        background: blue;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+    }
+
+    .popup form button:hover {
+        background: darkblue;
+    }
+</style>
+
+<script>
+    function togglePopup() {
+        var popup = document.getElementById("popup");
+        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+    }
+
+    function hidePopup() {
+        var popup = document.getElementById("popup");
+        popup.style.display = "none";
+    }
+
+    function setRole(role) {
+        document.getElementById("selected_role").value = role;
+        togglePopup();
+    }
+</script>
+<h1>View All Users Profile</h1>
+
+<div class="container1">
+    <div class="allUsers">
+        {% for user in role_list %}
+        <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div class="ms-2 me-auto">
+                <div>
+                    <div class="fw-bold" style="display: inline;">Role:</div>
+                    <div style="display: inline;">{{ user.role }}</div>
+                    <div class="fw-bold" style="display: inline;">Description:</div>
+                    <div style="display: inline;">{{ user.description }}</div>
+                    <div class="fw-bold" style="display: inline;">Status:</div>
+                    <div style="display: inline;">{{ user.status }}</div>
+                    <button class="btn btn-primary" onclick=" setRole('{{ user.role }}');">Edit Description</button>
+
+                </div>
+            
+                <div class="popup" id="popup">
+                    <p>This is a popup!!!</p>
+                    <p>Please enter your new description</p>
+                    <form action="/updateDescription" method="POST">
+                        <input type="hidden" id="selected_role" name="selected_role">
+                        <input type="text" id="new_description" name="new_description" class="form-control form-control-lg" placeholder="Enter your new description here">
+                        <button type="submit">Edit</button>
+                    </form>
+                    <button onclick="hidePopup()">Close</button>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+{% endblock %}

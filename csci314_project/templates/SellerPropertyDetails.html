@@ -60,14 +60,14 @@
                 <button type="submit" id="details-btn" class="btn btn-primary">View Favorites</button>
                 <div>
                   <div class="fw-bold" style="display: inline;">View Count:</div>
-                  <div id="details-view-count" style="display: inline;">{{ details_view_count }}</div>
+                  <div id="details-view-count" style="display: inline;">{{ total_properties }}</div>
                 </div>  
               </form>
-              <form action="/sellPropertyDetails" class="ms-auto" method="POST">
-                <button type="submit" id="update-btn" class="btn btn-primary">Update Count</button>
+              <form action="/displaySumDetail2" class="ms-auto" method="GET">
+                <button type="submit" id="update-btn" class="btn btn-primary">View Count</button>
                 <div>
                   <div class="fw-bold" style="display: inline;">View Count:</div>
-                  <div id="update-view-count" style="display: inline;">{{ update_view_count }}</div>
+                  <div id="update-view-count" style="display: inline;">{{ total_properties_num }}</div>
                 </div> 
               </form>
             </div>

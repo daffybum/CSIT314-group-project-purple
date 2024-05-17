@@ -27,58 +27,46 @@
         <!-- navbar links -->
         <div class="collapse navbar-collapse justify-content-end align-left" id="main-nav">
           <ul class="navbar-nav">
-            {% if user_name != "admin" %}
-            <li class="nav-item">
-              <a class="nav-link" href="/buy">Buy</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/sell">Sell</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/viewAllAgents">Find Agents</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/rateandreview">Rate and Review</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/aboutus">About Us</a>
-            </li>
-            {% endif %}
-            {% if user_name == "admin" %}
-            <li class="nav-item">
-                <a class="nav-link" href="/viewAllUsers">View All User Account</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/viewalluserprofile">View All User Profile</a>
-            </li>
-            {% endif %}
+              {% if user_role == "buyer" %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/buy">Buy</a>
+                  </li>
+              {% elif user_role in ["seller", "real_estate_agent"] %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/sell">Sell</a>
+                  </li>
+              {% endif %}
+      
+              {% if user_role in ["buyer", "seller"] %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/viewAllAgents">Find Agents</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="/aboutus">About Us</a>
+                  </li>
+              {% elif user_role == "admin" %}
+                  <li class="nav-item">
+                      <a class="nav-link" href="/viewAllUsers">View All User Account</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link" href="/viewAllrole">View All User Profile</a>
+                  </li>
+              {% endif %}
           </ul>
-        </div>
+      </div>
+      
 
         <!-- navbar links user-->
         <div class="collapse navbar-collapse justify-content-end align-left" id="user-nav">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a class="nav-link" href="/accountDetail">Account</a>
-            </li>
-            {% if user_name != "admin" %}
-            <li class="nav-item">
-              <a class="nav-link" href="/profileDetail">Profile</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-            {% if user_name == "buyer" %}
-              <a class="nav-link" href="/favourites">Favourites</a>
+            {% if user_role == "buyer" %}
+              <a class="nav-link" href="/displayFavourite">Favourites</a>
             {% endif %}
             </li>
             <li class="nav-item">
-            {% if user_name == "seller" %}
-              <a class="nav-link" href="/views">Views</a>
-            {% endif %}
-            </li>
-            <li class="nav-item">
-            {% if user_name == "realestateagent" %}
-              <a class="nav-link" href="/myrating">My Rating</a>
+            {% if user_role == "real_estate_agent" %}
+              <a class="nav-link" href="/viewMyOwnReviewRating">My Rating</a>
             {% endif %}
             </li>
             <li class="nav-item">

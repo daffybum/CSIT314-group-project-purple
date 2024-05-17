@@ -42,18 +42,21 @@ CREATE TABLE favourites (
     favourite_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
     buyer_name VARCHAR(255) NOT NULL,
     property_id INT NOT NULL,
-    CONSTRAINT FK_buyer_name FOREIGN KEY (buyer_name) REFERENCES useraccount(username),
-    CONSTRAINT FK_property_id FOREIGN KEY (property_id) REFERENCES Properties(property_id)
-   );
+    CONSTRAINT FK_buyer_name FOREIGN KEY (buyer_name) REFERENCES useraccount(username) ON DELETE CASCADE,
+    CONSTRAINT FK_property_id FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE,
+    UNIQUE (buyer_name, property_id)
+);
 
 
 CREATE TABLE review (
-    agent_name VARCHAR(255) NOT NULL PRIMARY KEY,
+    review_id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    agent_name VARCHAR(255) NOT NULL,
     review_text TEXT NOT NULL,
     rating INT NOT NULL,
     posted_by VARCHAR(255) NOT NULL,
     CONSTRAINT FK_agent_name FOREIGN KEY (agent_name) REFERENCES useraccount(username),
-    CONSTRAINT FK_posted_by FOREIGN KEY (posted_by) REFERENCES useraccount(username)
+    CONSTRAINT FK_posted_by FOREIGN KEY (posted_by) REFERENCES useraccount(username),
+    ADD CONSTRAINT UNIQUE (agent_name, posted_by);
 );
 
 CREATE TABLE detail (

@@ -30,10 +30,22 @@ class UserProfile:
             
         except Exception as e:
             print(f"Error display property: {e}")
+            
+    def insert_new_role(self, role, description):
+        try:
+            cur = mysql.connection.cursor()
+            insert_query = "INSERT INTO userprofiles (role, description) VALUES (%s, %s)"
+            cur.execute(insert_query, (role, description))
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error inserting: {str(e)}")
+            return False
+        
 
     def update_description(self,role,new_description):
         try:
-            print('123')
             cur = mysql.connection.cursor()
             query = "UPDATE userprofiles SET description = %s WHERE role = %s;"
             cur.execute(query,(new_description,role))
@@ -42,6 +54,8 @@ class UserProfile:
             return True
         except Exception as e:
             print(f"Error updating")
+            
+#end ==========================================================================================================
 
 class UserAccount:
     def __init__(self, role= None,username=None, password=None, name=None, surname=None, contact = None, date_of_birth=None,email=None, address=None):
@@ -470,6 +484,43 @@ class PropertyListing:
          
         except Exception as e:
             print(f"Error searching property: {e}")
+            
+    def search_newproperty(self, property_location):
+        try:
+            cur = mysql.connection.cursor()
+
+            query = "SELECT * FROM properties where property_location = %s AND property_status = 'selling'"
+            data = (property_location,)
+            cur.execute(query,data)
+            property_list = []
+            for property_data in cur.fetchall():
+                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
+                property_list.append(property_item)
+            cur.close()
+            
+            return property_list
+            
+        except Exception as e:
+            print(f"Error searching property: {e}")
+            
+    def search_oldproperty(self, property_location):
+        try:
+            cur = mysql.connection.cursor()
+
+            query = "SELECT * FROM properties where property_location = %s AND property_status = 'sold'"
+            data = (property_location,)
+            cur.execute(query,data)
+            property_list = []
+            for property_data in cur.fetchall():
+                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
+                property_list.append(property_item)
+            cur.close()
+            
+            return property_list
+            
+        except Exception as e:
+            print(f"Error searching property: {e}")
+            
     
     def view_selling_property(self):
         try:

@@ -1,5 +1,32 @@
 from csci314_project import entity
 
+#User Profile Controller ==============================================================================================
+class getRoleListController:
+    def __init__(self):
+        self.userprofile = entity.UserProfile()
+    
+    def get_all_role(self):
+        return self.userprofile.get_all_role()
+
+
+class SubmitNewRoleController:
+    def __init__(self):
+        self.userProfile = entity.UserProfile()
+    def submit_new_role(self,role,description):
+        return self.userProfile.insert_new_role(role,description)
+    
+class updatedescriptionController:
+    def __init__(self):
+        self.userprofile = entity.UserProfile()
+    
+    def update_description(self, role , new_description):
+        return self.userprofile.update_description(role, new_description)  
+    
+#End ==================================================================================================================
+    
+    
+    
+    
 # User Account related Controllers
 class LoginController:
     def __init__(self):
@@ -14,19 +41,6 @@ class CreateUserAccController:
     def createUserAccount(self, userAcc):
         return self.userAccount.createUserAcc(userAcc)
 
-class getRoleListController:
-    def __init__(self):
-        self.userprofile = entity.UserProfile()
-    
-    def get_all_role(self):
-        return self.userprofile.get_all_role()
-
-class updatedescriptionController:
-    def __init__(self):
-        self.userprofile = entity.UserProfile()
-    
-    def update_description(self, role , new_description):
-        return self.userprofile.update_description(role, new_description)
             
 class DisplayController:
     def __init__(self):
@@ -88,6 +102,20 @@ class viewSearchedpropertyController():
     
     def view_searched_propertyList(self, property_location):
         return self.propertyListing.search_property(property_location)
+    
+class viewSearchednewpropertyController():
+    def __init__(self):
+        self.propertyListing = entity.PropertyListing()
+    
+    def view_searched_newpropertyList(self, property_location):
+        return self.propertyListing.search_newproperty(property_location)
+    
+class viewSearchedoldpropertyController():
+    def __init__(self):
+        self.propertyListing = entity.PropertyListing()
+    
+    def view_searched_oldpropertyList(self, property_location):
+        return self.propertyListing.search_oldproperty(property_location)
 
 class viewSellingpropertyController():
     def __init__(self):
@@ -103,6 +131,9 @@ class viewSoldpropertyController():
     def view_sold_propertyList(self):
         return self.propertyListing.view_sold_property()
 
+
+    
+    
 class DisplayAgentController:
     def __init__(self):
         self.userAccount = entity.UserAccount()

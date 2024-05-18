@@ -103,6 +103,41 @@
     .insertpopup form button:hover {
         background: darkblue;
     }
+
+    .popupd {
+        display: none;
+        position: fixed;
+        padding: 10px;
+        width: 280px;
+        left: 50%;
+        margin-left: -150px;
+        height: 180px;
+        top: 50%;
+        margin-top: -100px;
+        background: #FFF;
+        border: 3px solid #F04A49;
+        z-index: 20;
+      }
+    .popupd:after {
+        position: fixed;
+        content: "";
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: -2;
+      }
+    .popupd:before {
+        position: absolute;
+        content: "";
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: #FFF;
+        z-index: -1;
+      }
 </style>
 
 <script>
@@ -130,22 +165,51 @@
         document.getElementById("selected_role").value = role;
         togglePopup();
     }
+
+    function setDeleteRole(role) {
+        document.getElementById("deleteselected_role").value = role;
+        toggleDeletePopup();
+    }
+
+    function toggleDeletePopup() {
+        var popup = document.getElementById("popupd");
+        popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
+    }
+    
 </script>
 
 <h1>View All Users Profile</h1>
 <div class="container1">
+
+    <div class="row height d-flex justify-content-center align-items-center">
+
+        <div class="col-md-8">
+
+          <div class="search">
+            <i class="fa fa-search"></i>
+            <form action="/viewSearcheduserProfile" method="POST">
+            <input type="text" id="inputroles" name="inputroles" class="form-control" placeholder="Enter a User profile to search">
+            <button class="btn btn-primary">Search</button>
+            </form>
+          </div>
+          
+        </div>
+        
+    </div>
+
     <div class="allUsers">
-        {% for user in role_list %}
+        {% for role in role_list %}
         <li class="list-group-item d-flex justify-content-between align-items-start">
             <div class="ms-2 me-auto">
                 <div>
                     <div class="fw-bold" style="display: inline;">Role:</div>
-                    <div style="display: inline;">{{ user.role }}</div>
+                    <div style="display: inline;">{{ role.role }}</div>
                     <div class="fw-bold" style="display: inline;">Description:</div>
-                    <div style="display: inline;">{{ user.description }}</div>
+                    <div style="display: inline;">{{ role.description }}</div>
                     <div class="fw-bold" style="display: inline;">Status:</div>
-                    <div style="display: inline;">{{ user.status }}</div>
-                    <button class="btn btn-primary" onclick="setRole('{{ user.role }}');">Edit Description</button>
+                    <div style="display: inline;">{{ role.status }}</div>
+                    <button class="btn btn-primary" onclick="setRole('{{ role.role }}');">Edit Description</button>
+                    <button class="btn btn-primary" onclick="setDeleteRole('{{ role.role }}');">Delete role</button>
                 </div>
 
                 <div class="popup" id="popup">
@@ -158,7 +222,18 @@
                     </form>
                     <button onclick="hidePopup()">Close</button>
                 </div>
-            </div>
+                
+                <div class="popup-container">
+
+                    <div class="popupd" id="popupd">
+                      <p>Are you sure you want to delete your account?</p>
+                      <form action="/adminDeleteProfile" method="POST">
+                        <input type="hidden" id="deleteselected_role" name="deleteselected_role">
+                        <button type="submit">Yes</button>
+                        <a href="#" onclick="toggleDeletePopup()">No</a>
+                      </form>
+                    </div>
+                </div>
         </li>
         {% endfor %}
     </div>

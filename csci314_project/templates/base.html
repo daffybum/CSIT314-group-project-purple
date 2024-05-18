@@ -18,7 +18,7 @@
         
         <!-- Visualex text -->
         <a href="#intro" class="navbar-brand">
-          <span class="h1 fw-bold mb-0 text-black me-3">Visualex.</span>
+          <span class="h1 fw-bold mb-0 text-black me-3">Real Estate System.</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#user-nav" aria-controls="user-nav" aria-expanded="false" aria-label="Toggle navigation">
           <span class="h7 fw-bold mb-0 text-black me-3">{{ user_name }}</span>
@@ -43,9 +43,7 @@
                   <li class="nav-item">
                       <a class="nav-link" href="/viewAllAgents">Find Agents</a>
                   </li>
-                  <li class="nav-item">
-                      <a class="nav-link" href="/aboutus">About Us</a>
-                  </li>
+ 
               {% elif user_role == "admin" %}
                   <li class="nav-item">
                       <a class="nav-link" href="/viewAllUsers">View All User Account</a>
@@ -53,6 +51,7 @@
                   <li class="nav-item">
                       <a class="nav-link" href="/viewAllrole">View All User Profile</a>
                   </li>
+                  
               {% endif %}
           </ul>
       </div>
@@ -69,6 +68,11 @@
             <li class="nav-item">
             {% if user_role == "real_estate_agent" %}
               <a class="nav-link" href="/viewMyOwnReviewRating">My Rating</a>
+            {% endif %}
+            {% if user_role == "admin" %}
+            <li class="nav-item">
+              <a class="nav-link" href="/sign-up">create new user account</a>
+            </li>
             {% endif %}
             </li>
             <li class="nav-item">

@@ -6,13 +6,14 @@ from werkzeug.security import generate_password_hash
 
 from datetime import datetime, timedelta 
 
-
+#table to define different types of User account, base only have 4 types of user Account, buyer seller rea and admin
 class UserProfile:
     def __init__(self, role= None,description=None, status = None):
         self.role = role
         self.description= description
         self.status = status
-        
+    
+    #gets all different roles in Userprofile
     def get_all_role(self):
 
         try:
@@ -30,7 +31,8 @@ class UserProfile:
             
         except Exception as e:
             print(f"Error display property: {e}")
-            
+    
+    #inert a new role and description into userProfile        
     def insert_new_role(self, role, description):
         try:
             cur = mysql.connection.cursor()
@@ -42,7 +44,8 @@ class UserProfile:
         except Exception as e:
             print(f"Error inserting: {str(e)}")
             return False
-        
+    
+    #search userprofile base on the role given  
     def search_roles(self, role):
         try:
             cur = mysql.connection.cursor()
@@ -62,6 +65,7 @@ class UserProfile:
         except Exception as e:
             print(f"Error searching role: {e}")    
 
+    #updates a role's description
     def update_description(self,role,new_description):
         try:
             cur = mysql.connection.cursor()
@@ -73,7 +77,7 @@ class UserProfile:
         except Exception as e:
             print(f"Error updating")
             
-            
+    #deletes a role        
     def delete_profile(self,role): 
         try:
             cur = mysql.connection.cursor()
@@ -90,8 +94,8 @@ class UserProfile:
             return False
         
             
-#end ==========================================================================================================
 
+#table of user accounts that consists of different roles specified by UserProfile table
 class UserAccount:
     def __init__(self, role= None,username=None, password=None, name=None, surname=None, contact = None, date_of_birth=None,email=None, address=None):
         self.role = role
@@ -163,7 +167,7 @@ class UserAccount:
         print("Created users: " , usernames)
         return True
 
-
+    #selects the password from given username and check if it matches with check_password_hash() funtion
     def login(self, username, password, role):
         session['username'] = username
         session['role'] = role
@@ -181,7 +185,7 @@ class UserAccount:
             return False
         
         
-
+    #create a new useraccount base on the data in userAcc
     def createUserAcc(self, userAcc):
         try:
            cur = mysql.connection.cursor()
@@ -197,7 +201,8 @@ class UserAccount:
         except Exception as e:
             print(f"Error creating account: {e}")
             return False
-        
+    
+    #selects all data from useraccount base on the selected username and returns it
     def get_user_info(self, username):  
         session['selected_user'] = username # store the username in the session
         cur = mysql.connection.cursor()
@@ -207,19 +212,8 @@ class UserAccount:
         mysql.connection.commit()
         cur.close()
         return user_data
-    
-    def get_user_account(self, username):  
-        session['selected_user'] = username # store the username in the session
-        cur = mysql.connection.cursor()
-        query = "SELECT role, username, password FROM useraccount WHERE username = %s"
-        cur.execute(query, (username,))
-        user_data = cur.fetchone()
-        print(user_data)
-        mysql.connection.commit()
-        cur.close()
-        return user_data
                
-
+    #returns all useraccount table data in a list
     def get_all_users(self):
         try:
             cur = mysql.connection.cursor()
@@ -236,6 +230,7 @@ class UserAccount:
         except Exception as e:
             print(f"Error getting username list: {e}")
 
+    #selects useraccounts with the specfied username and returns them in a list
     def search_user(self, username):
         try:
             cur = mysql.connection.cursor()
@@ -254,6 +249,7 @@ class UserAccount:
         except Exception as e:
             print(f"Error searching user: {e}")
 
+    #updates useraccount base on the selected username and admin's input
     def edit_profile(self, oldUsername, name, surname, contact, date_of_birth,email, address):
         try:
             cur = mysql.connection.cursor()
@@ -262,11 +258,10 @@ class UserAccount:
             mysql.connection.commit()
             return True
         except Exception as e:
-            # Log the exception here
             print(f"An error occurred: {e}")
             return False
     
-    
+    #displays all useraccounts where role is rea
     def displayallagent(self):
         try:
             cur = mysql.connection.cursor()
@@ -283,6 +278,7 @@ class UserAccount:
             print(f"Error displaying agents: {e}")
             return False
 
+    #gets an agent useraccount info 
     def get_agent_info(self, agentname):  
         try:
             session['agentname'] = agentname 
@@ -297,6 +293,7 @@ class UserAccount:
             print(f"Error getting agent info: {e}")
             return False        
     
+    #deletes a useraccount starting from its data in children tables review, favourites and properties table
     def delete_account(self, username):
         try:
             cur = mysql.connection.cursor()
@@ -323,20 +320,8 @@ class UserAccount:
         except Exception as e:
             print(f"Error deleting account: {e}")
             return False
-    
-    def update_password(self, username , new_password):
-        try:
-            new_hashed_password = generate_password_hash(new_password)
-            cur = mysql.connection.cursor()
-            query = "UPDATE useraccount SET password = %s WHERE username = %s;"
-            data = (new_hashed_password , username)
-            cur.execute(query, data)
-            mysql.connection.commit()
-            return True
-        except Exception as e:
-            print(f"Error updating your password: {e}")
-            return False   
 
+    #updates changes a useraccount password
     def admin_update_password(self, username , new_password):
         try:
             new_hashed_password = generate_password_hash(new_password)
@@ -351,19 +336,8 @@ class UserAccount:
             print(f"Error updating user password: {e}")
             return False           
 
-    def suspendAccount(self, username):
-        try:
-            cur = mysql.connection.cursor()
-            query = "UPDATE useraccount SET password = NULL WHERE username = %s;"
-            data = (username)
-            cur.execute(query, data)
-            mysql.connection.commit()
-            return True
-        except Exception as e:
-            print(f"Error updating user password: {e}")
-            return False         
 
-
+#table for uploaded property listings
 class PropertyListing:
     def __init__(self,property_id=None,property_name=None,property_type=None,property_location=None,property_price=None, property_bedroom=None,property_bathroom=None,property_size=None,property_status= None,property_postedBy=None):
         self.property_id = property_id
@@ -377,6 +351,7 @@ class PropertyListing:
         self.property_status = property_status
         self.property_postedBy = property_postedBy
         
+    #generate random properties to be inserted into properties table base on mrt stations in singapore and the 3 types of housing
     def generate_properties(self):
         
         stations = [
@@ -429,7 +404,7 @@ class PropertyListing:
         return True
 
         
-        
+    #uploades a row data into properties table with the premeters set by users    
     def submit_property_listing(self,property_name,property_type,property_location,property_price, property_bedroom,property_bathroom,property_size, property_postedBy):
         try:
            cur = mysql.connection.cursor()
@@ -446,7 +421,7 @@ class PropertyListing:
             print(f"Error creating the property listing: {e}")
             return False
         
-    
+    #gets all data in properties tabele and returns them in a list
     def get_property_listing(self):
         try:
             cur = mysql.connection.cursor()
@@ -461,7 +436,8 @@ class PropertyListing:
             return property_list
         except Exception as e:
             print(f"Error getting property list: {e}")
-            
+    
+    #gets all data from properties table that has the selected property_id and also adds that property_id into detials table    
     def get_property_detail(self,property_id):
         session['property_id']=property_id
         try:
@@ -476,12 +452,11 @@ class PropertyListing:
             insert_query = "INSERT INTO detail (property_id) VALUES (%s) "
             cur.execute(insert_query, (property_id,))
             
-            mysql.connection.commit()  # Commit both the SELECT and INSERT operations
+            mysql.connection.commit() 
 
         except Exception as e: 
-            # Log the exception here
             print(f"An error occurred: {e}")
-            mysql.connection.rollback()  # Rollback the transaction in case of error
+            mysql.connection.rollback()
             property_data = None
         finally:
             if cur is not None:
@@ -489,11 +464,11 @@ class PropertyListing:
         
         return property_data
     
+    #gets all data from properties table that has the selected property_id only
     def get_property_detail2(self,property_id):
         session['property_id']=property_id
         cur = mysql.connection.cursor()
 
-        # Fetch property detail
         fetch_query = "SELECT * FROM properties WHERE property_id = %s"
         cur.execute(fetch_query, (property_id,))
         property_data = cur.fetchone()
@@ -501,7 +476,7 @@ class PropertyListing:
         cur.close()
         return property_data
         
-            
+    #retrieves all data from properties table base on the given location
     def search_property(self, property_location):
         try:
             cur = mysql.connection.cursor()
@@ -519,7 +494,64 @@ class PropertyListing:
          
         except Exception as e:
             print(f"Error searching property: {e}")
+
+
+    #selects all data that has selling as property_status in properties table  
+    def view_selling_property(self):
+        try:
+            cur = mysql.connection.cursor()
+
+            query = "SELECT * FROM properties where property_status = 'selling'"
+            cur.execute(query)
+            property_list = []
+            for property_data in cur.fetchall():
+                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
+                property_list.append(property_item)
+            cur.close()
             
+            return property_list
+            
+        except Exception as e:
+            print(f"Error searching property: {e}")
+    
+    #selects all data that has sold as property_status in properties table            
+    def view_sold_property(self):
+        try:
+            cur = mysql.connection.cursor()
+
+            query = "SELECT * FROM properties where property_status = 'sold'"
+            cur.execute(query)
+            property_list = []
+            for property_data in cur.fetchall():
+                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
+                property_list.append(property_item)
+            cur.close()
+            
+            return property_list
+            
+        except Exception as e:
+            print(f"Error searching property: {e}")
+            
+    #selects all data that has selling as property_status in properties table but now having location equals to what users have given        
+    def search_oldproperty(self, property_location):
+        try:
+            cur = mysql.connection.cursor()
+
+            query = "SELECT * FROM properties where property_location = %s AND property_status = 'sold'"
+            data = (property_location,)
+            cur.execute(query,data)
+            property_list = []
+            for property_data in cur.fetchall():
+                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
+                property_list.append(property_item)
+            cur.close()
+            
+            return property_list
+            
+        except Exception as e:
+            print(f"Error searching property: {e}")
+
+    #selects all data that has selling as property_status in properties table but now having location equals to what users have given        
     def search_newproperty(self, property_location):
         try:
             cur = mysql.connection.cursor()
@@ -538,60 +570,7 @@ class PropertyListing:
         except Exception as e:
             print(f"Error searching property: {e}")
             
-    def search_oldproperty(self, property_location):
-        try:
-            cur = mysql.connection.cursor()
-
-            query = "SELECT * FROM properties where property_location = %s AND property_status = 'sold'"
-            data = (property_location,)
-            cur.execute(query,data)
-            property_list = []
-            for property_data in cur.fetchall():
-                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
-                property_list.append(property_item)
-            cur.close()
-            
-            return property_list
-            
-        except Exception as e:
-            print(f"Error searching property: {e}")
-            
-    
-    def view_selling_property(self):
-        try:
-            cur = mysql.connection.cursor()
-
-            query = "SELECT * FROM properties where property_status = 'selling'"
-            cur.execute(query)
-            property_list = []
-            for property_data in cur.fetchall():
-                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
-                property_list.append(property_item)
-            cur.close()
-            
-            return property_list
-            
-        except Exception as e:
-            print(f"Error searching property: {e}")
-                
-    def view_sold_property(self):
-        try:
-            cur = mysql.connection.cursor()
-
-            query = "SELECT * FROM properties where property_status = 'sold'"
-            cur.execute(query)
-            property_list = []
-            for property_data in cur.fetchall():
-                property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
-                property_list.append(property_item)
-            cur.close()
-            
-            return property_list
-            
-        except Exception as e:
-            print(f"Error searching property: {e}")
-
-
+    #gets sellers/agents uploaded property by selecting row data in properties table base on the property_postedBy variable
     def view_personal_property(self, posted_by):
         try:
             cur = mysql.connection.cursor()
@@ -610,7 +589,7 @@ class PropertyListing:
         except Exception as e:
             print(f"Error searching property: {e}")
             
-                
+    #deletes a properties by deleting its children data in favourites and details first            
     def delete_property(self,property_id):
         try:
             cur = mysql.connection.cursor()
@@ -628,7 +607,8 @@ class PropertyListing:
         except Exception as e:
             print(f"Error deleting property: {e}")
             return False
-            
+    
+    #updates selected property id with new data give by user         
     def update_property(self,property_name,property_type,property_location,property_price,property_bedroom,property_bathroom,property_size,property_status,property_id):
         try:
             cur=mysql.connection.cursor()
@@ -644,13 +624,14 @@ class PropertyListing:
                 
             
 
-            
+#table for users shortlisting properties           
 class favourite:
     def __init__(self,favourite_id=None,buyer_name=None,property_id=None):
         self.favourite_id = favourite_id
         self.buyer_name = buyer_name
         self.property_id = property_id
 
+    #generate random row data in favourites table based on the current buyer useraccounts and current property_ids avaliable
     def generate_favourites(self):
         
         for i in range(5):
@@ -681,6 +662,7 @@ class favourite:
         cur.close()
         return True
     
+    #inserts property_id selected into favourite table, and return the list of properties again for viewing
     def save_favourite(self,buyer_name,property_id):
             session['property_id']=property_id
             try:
@@ -691,20 +673,20 @@ class favourite:
                 cur.execute(fetch_query)
                 property_list = []
                 for property_data in cur.fetchall():
-                    # Assuming PropertyListing is defined elsewhere and takes the same arguments
+
                     property_item = PropertyListing(property_id=property_data[0], property_name=property_data[1], property_type=property_data[2], property_location=property_data[3], property_price=property_data[4], property_bedroom=property_data[5], property_bathroom=property_data[6], property_size=property_data[7], property_postedBy=property_data[8], property_status=property_data[9])
                     property_list.append(property_item)
 
-                # Insert property_id into detail table
+
                 insert_query = "INSERT INTO favourites (buyer_name,property_id) VALUES(%s,%s)"
                 cur.execute(insert_query, (buyer_name,property_id,))
                 
-                mysql.connection.commit()  # Commit both the SELECT and INSERT operations
+                mysql.connection.commit() 
 
             except Exception as e:
-                # Log the exception here
+
                 print(f"An error occurred: {e}")
-                mysql.connection.rollback()  # Rollback the transaction in case of error
+                mysql.connection.rollback()  
                 return False
             finally:
                 if cur is not None:
@@ -712,19 +694,9 @@ class favourite:
             
             return property_list
     
-    def display_favourite(self,buyer_name):
-        try:
-            cur=mysql.connection.cursor()
-            query = "SELECT p.* FROM Properties p INNER JOIN favourites f ON p.property_id = f.property_id WHERE f.buyer_name = [username];"
-            data = (buyer_name,)
-            cur.execute(query, data)
-            mysql.connection.commit()
-            cur.close()
-            return True
-        except Exception as e:
-            print(f"Error viewing favourites: {e}")
-            return False
+    
 
+    #select all row data from table favourites based on given buyer_name and returns it in a list
     def display_favourite(self,buyer_name):
             try:
                 cur=mysql.connection.cursor()
@@ -753,6 +725,7 @@ class favourite:
                 print(f"Error viewing favourites: {e}")
                 return []
 
+    #counts all row data in favourite table and returns it 
     def display_sum_favourites(self, property_id):
         try:
             cur = mysql.connection.cursor()
@@ -773,7 +746,7 @@ class favourite:
 
             
         
-            
+#table for user feedback and rating to agents            
 class Review:
     def __init__(self,agent_name=None,review_text=None,rating =None,posted_by=None):
         self.agent_name = agent_name
@@ -781,9 +754,9 @@ class Review:
         self.rating = rating
         self.posted_by = posted_by
 
+    #generate random review and ratings and insert into table according to usernames from Useraccount table
     def generate_reviews(self):
         
-
         for i in range(5):
             try:
                 cur = mysql.connection.cursor()
@@ -793,7 +766,7 @@ class Review:
                 agents = [row[0] for row in agentresults]
                 agent_name = random.choice(agents)
                 
-                review_text = random.choice(['Good','bad','could better','amazing','horrible'])
+                review_text = random.choice(['Good','bad','could be better','amazing','horrible'])
                 rating = random.choice(['1','2','3','4','5'])
                 
                 getusername_query = "SELECT username FROM useraccount WHERE role NOT IN ('real_estate_agent', 'admin');"
@@ -816,6 +789,8 @@ class Review:
         
         return True
     
+    #select rea's row data from useraccount and returns it in a list
+    #it also inserts review and rating about the agent into table review
     def givereview(self,agentname,review,rating,postedby):
             try:
                 cur=mysql.connection.cursor()
@@ -824,9 +799,8 @@ class Review:
                 agent_data = cur.fetchone()
                 insert_query = "INSERT INTO review (agent_name,review_text,rating,posted_by) VALUES(%s,%s,%s,%s)"
                 cur.execute(insert_query, ((agentname,review,rating,postedby,)))
-                mysql.connection.commit()  # Commit both the SELECT and INSERT operations
+                mysql.connection.commit()  
             except Exception as e:
-            # Log the exception here
                 print(f"An error occurred: {e}")
                 mysql.connection.rollback()  # Rollback the transaction in case of error
                 return False
@@ -836,6 +810,7 @@ class Review:
         
             return agent_data
         
+    #selects favourite table row data where rea name = agent_name and returns all rows of data in a list
     def displayreview(self,agent_name):
         session['agentname'] = agent_name 
         try:
@@ -854,13 +829,13 @@ class Review:
             print(f"Error saving review: {e}")
             return False
         
-        
+#keep track of how many times users viewed a properties       
 class detail:
     def _init_(self,detail_id=None,property_id=None):
         self.detail_id = detail_id
         self.property_id = property_id
 
-    
+    #counts total number of rows in detail table and returns it
     def display_sum_click_detail(self, property_id):
             try:
                 cur = mysql.connection.cursor()

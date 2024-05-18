@@ -5,17 +5,24 @@ from werkzeug.security import generate_password_hash
 from werkzeug.security import check_password_hash
 
 boundary = Blueprint('boundary', __name__)  # Blueprints means it has roots inside a bunch of URLs defined
+from . import mysql
+from flask import Flask
+
+app = Flask(__name__)
+
+if __name__ == '__main__':
+    app.run()
 
 
 #This one for create the 100 user , 100 propertylist, 100 review and 100 favourites==========================================================
-boundary.route('/generateuser', methods=['GET', 'POST'])
+@boundary.route('/generateuser', methods=['GET', 'POST'])
 def createuser():
 
     generateusercontroller = controller.generateuseraccountController()
     generateuser = generateusercontroller.generateUseraccount()
     if generateuser:
         flash('Generated 100 users', category='success')
-        return render_template("login.html")
+        return redirect(url_for('boundary.login'))
     else:
         flash('failed to generate 100 users', category='fail')
 
@@ -25,8 +32,8 @@ def createproperties():
     generatepropertycontroller = controller.generatepropertiesController()
     generateproperty = generatepropertycontroller.generateproperties()
     if generateproperty:
-        flash('Generated 100 propertyies', category='success')
-        return render_template("login.html")
+        flash('Generated 100 properties', category='success')
+        return redirect(url_for('boundary.login'))
     else:
         flash('failed to generate 100 users', category='fail')
 
@@ -37,7 +44,7 @@ def createfavourites():
     generatefavourites = generatefav.generatefavourites()
     if generatefavourites:
         flash('Generated favourites', category='success')
-        return render_template("login.html")
+        return redirect(url_for('boundary.login'))
     else:
         flash('failed to generate 100 users', category='fail')
 
@@ -48,12 +55,17 @@ def createreviews():
     generatereview = generaterev.generatereview()
     if generatereview:
         flash('Generated reviews', category='success')
-        return render_template("login.html")
+        return redirect(url_for('boundary.login'))
     else:
         flash('failed to generate reviews', category='fail')
+        
+        
+
 #End ====================================================================================================================================
 
-#Boundary of User Profile ================================================================================================================
+#User profile boundary ====================================================================================================
+
+#display out the different defined user profiles in a list.
 @boundary.route('/viewAllrole', methods=['GET', 'POST'])
 def viewAllRole():
     user_role = session.get('role')
@@ -62,6 +74,7 @@ def viewAllRole():
     role_list = getAllRoleController.get_all_role()
     return render_template('viewAllUserProfiles.html', user_name = username, role_list = role_list, user_role = user_role)
 
+#filter out roles base on the inputroles value
 @boundary.route('/viewSearcheduserProfile', methods=['POST','GET'])
 def viewSearcheduserProfile():
     user_role = session.get('role')
@@ -77,6 +90,7 @@ def viewSearcheduserProfile():
     else:
         return render_template("viewAllUserProfiles.html", role_list=searchedRoles, user_name=username, user_role = user_role)
 
+#creating a new type of role for users   
 @boundary.route('/submitNewRole', methods=['GET', 'POST'])
 def submitNewRole():
     user_role = session.get('role')
@@ -95,7 +109,7 @@ def submitNewRole():
             flash('Failed Insert New Role', category='error')
             return redirect(url_for('boundary.viewAllRole'))
       
-
+#update a role's description base on the selected_role and new_desciption
 @boundary.route('/updateDescription', methods=['GET', 'POST'])
 def update_description():
     user_role = session.get('role')
@@ -113,7 +127,7 @@ def update_description():
             flash('Failed updated description', category='error')
             return redirect(url_for('boundary.viewAllRole'))
         
-        
+#delete a User profile by setting user accounts role == NULL and droping the deleteselected_role role in the table       
 @boundary.route('/adminDeleteProfile', methods=['GET','POST'])
 def delete_profile():
     user_role = session.get('role')
@@ -128,12 +142,13 @@ def delete_profile():
         flash('Failed delete role', category='error')
         return redirect(url_for('boundary.viewAllRole'))
     
-        
-#End =====================================================================================================================================
-        
-#User Account=============================================================================================================================
+            
+    
+    
+#End ======================================================================================================================
 
-#User story seller7 Admin11 rea6 Buyer10 
+#User account boundary ====================================================================================================
+#login user account into our website
 @boundary.route('/', methods=['GET', 'POST'])
 def login():                                     
     if request.method == 'POST':
@@ -143,19 +158,20 @@ def login():
         loginController = controller.LoginController()
         user = loginController.userLogin(username, password, role)
 
-        if (user):
+        if user:
             return redirect(url_for('boundary.home'))
         else:
             flash('Wrong password or username', category='error')
+            return redirect(url_for('boundary.login'))
 
     return render_template("login.html", boolean=True)
 
-#user story seller2 admin12 rea7 buyer11
+#logout user account
 @boundary.route('/logout')
 def logout():
     return"<p>Logout</p>"
 
-#user story admin1
+#sign up page for a new useraccount
 @boundary.route('/sign-up', methods=['GET', 'POST'])
 def sign_up():
     if request.method == 'POST':
@@ -194,7 +210,7 @@ def sign_up():
     else:
         return render_template("sign_up.html")
 
-
+#homepage for our website
 @boundary.route('/home', methods=['GET', 'POST'])
 def home():
     user_role = session.get('role')
@@ -203,32 +219,35 @@ def home():
     return render_template("homepage.html", user_name = username, user_role= user_role)
 
 
-
-
-@boundary.route('/accountDetail', methods=['GET', 'POST'])
-def display_account():
+#admin view all user accounts
+@boundary.route('/viewAllUsers')
+def viewAllUsers():
     user_role = session.get('role')
     username = session.get('username')
-    if username:
-        display= controller.DisplayAccountController()
-        user = display.get_user_account(username)
-        if user:
-            role, username, password = user
-            return render_template("accountdetail.html", role = role,username=username, user_name = username, user_role = user_role)
-        else:
-            flash('User not found', category='error')
-            return redirect(url_for('boundary.login'))
-    else:
-        flash('User not logged in', category='error')
-        return redirect(url_for('boundary.login'))
+    getAllUserController = controller.GetAllUsersController()
+    users_list = getAllUserController.get_all_users()
+    return render_template('viewAllUsersAccount.html', user_name = username, users_list = users_list, search_exist = False, user_role = user_role)
+
+#admin view user account details
+@boundary.route('/viewUserDetails', methods=['POST'])
+def viewUserDetails():
+    user_role = session.get('role')
+    username = session.get('username')
+    selected_user = request.form['selectedUsername']
+    display= controller.DisplayAccountController()
+    user = display.get_user_info(selected_user)
+    if user:
+        role, selected_user, name, surname, contact,date_of_birth, email, address = user
+        return render_template("accountdetail.html", role=role, username=selected_user,name=name, surname=surname,contact=contact, date_of_birth=date_of_birth, email=email, address=address, user_name = username, user_role = user_role)
     
+
+#admin edit user account
 @boundary.route('/editprofile', methods=['GET', 'POST'])
 def editProfile():
     user_role = session.get('role')
     username = session.get('username')
     selected_user = session.get('selected_user')
 
-    # Instantiate the controller
     editProfileController = controller.EditProfileController()
 
     if request.method == 'POST':
@@ -249,7 +268,7 @@ def editProfile():
             flash('Profile update failed', category="error")
             return redirect(url_for('boundary.viewAllUsers'))
     else:
-        # Handling the GET request to pre-fill the form with existing details
+
         user_details = editProfileController.get_user_info(selected_user)
         if user_details:
             role, selected_user, name, surname, contact, date_of_birth, email, address = user_details
@@ -258,28 +277,7 @@ def editProfile():
             flash('User not found', category="error")
             return redirect(url_for('boundary.viewAllUsers'))
 
-#user story admin2 
-@boundary.route('/viewAllUsers')
-def viewAllUsers():
-    user_role = session.get('role')
-    username = session.get('username')
-    getAllUserController = controller.GetAllUsersController()
-    users_list = getAllUserController.get_all_users()
-    return render_template('viewAllUsersAccount.html', user_name = username, users_list = users_list, search_exist = False, user_role = user_role)
-
-#userstory admin7
-@boundary.route('/viewUserDetails', methods=['POST'])
-def viewUserDetails():
-    user_role = session.get('role')
-    username = session.get('username')
-    selected_user = request.form['selectedUsername']
-    display= controller.DisplayController()
-    user = display.get_user_info(selected_user)
-    if user:
-        role, selected_user, name, surname, contact,date_of_birth, email, address = user
-        return render_template("accountdetail.html", role=role, username=selected_user,name=name, surname=surname,contact=contact, date_of_birth=date_of_birth, email=email, address=address, user_name = username, user_role = user_role)
-    
-#userstory admin5
+#admin search for a specific user
 @boundary.route('/viewSearchedUserDetails', methods=['POST'])
 def viewSearchedUserDetails():
     user_role = session.get('role')
@@ -289,13 +287,13 @@ def viewSearchedUserDetails():
     searchedUsername = searchUserController.search_user(inputUsername)
     if searchedUsername is None:
         flash('Username does not exist!', category='error')
-        getAllUserController = controller.GetAllUsersController()
+        getAllUserController = controller.SearchUserController()
         users_list = getAllUserController.get_all_users()
         return render_template('viewAllUsersAccount.html', user_name = username, users_list = users_list, search_exist = False, user_role = user_role)
     else:
         return render_template('viewAllUsersAccount.html', user_name = username, users = searchedUsername ,search_exist = True, user_role = user_role)
     
-
+#admin delete useraccount
 @boundary.route('/deleteAccount', methods=['GET', 'POST'])
 def delete_account():
     user_role = session.get('role')
@@ -312,7 +310,7 @@ def delete_account():
         flash('Failed to delete this account.', category='error')
         return redirect(url_for('boundary.viewAllUsers'))
     
-
+#admin edit user password
 @boundary.route('/adminUpdatePassword', methods=['GET','POST'])
 def adminupdate_password():
     user_role = session.get('role')
@@ -331,12 +329,38 @@ def adminupdate_password():
     else:
         flash('Failed update your password, please try again', category='error')
         return redirect(url_for('boundary.viewAllUsers'))
-        
 
-#Buyer =================================================================================================================
- 
+#view all agents page for buyer and sellers to rate and review        
+@boundary.route('/viewAllAgents')
+def viewAllAgent():
+    user_role = session.get('role')
+    username = session.get('username')
+    displayAgentController = controller.DisplayAgentController()
+    agentlist = displayAgentController.display_all_agent()
+    print(agentlist)
+    return render_template('displayagent.html',agentlist = agentlist, user_name = username, user_role = user_role)
+         
+#rating an review page for agents to submit ratings, also displays agent details
+@boundary.route('/displayAgentDetail', methods=['GET', 'POST'])
+def displayagentdetail():
+    user_role = session.get('role')
+    username = session.get('username')
+    agentname = request.form.get('agentname')
+    print(agentname)
+    agentDetailController = controller.DisplayAgentDetailController()
+    agentDetail = agentDetailController.displayAgentDetail(agentname)
+    if agentDetail:
+        role,agentname,contact = agentDetail
+        return render_template("review.html", user_name = username,agent_name= agentname,agent_role=role,agent_contact=contact, user_role = user_role)
+    else:
+        return render_template("review.html", user_name = username,agent_name= agentname,agent_role=role,agent_contact=contact, user_role = user_role)
+             
+             
+             
+#End ======================================================================================================================
 
-#user story buyer1
+#property listng boundary =================================================================================================
+#buy page for buyers to see the property listing market, in this page buyers can press favourites and view property details
 @boundary.route('/buy', methods=['GET'])
 def buy():
     user_role = session.get('role')
@@ -345,7 +369,7 @@ def buy():
     property_list = property_controller.viewProperties()
     return render_template("buyPage.html", property_list=property_list, user_name=username, user_role = user_role)
 
-#Calculate the mortgage
+#property details page to see property listing info and mortage calculator
 @boundary.route('/propertyDetails', methods=['GET','POST'])
 def propertyDetails():
     user_role = session.get('role')
@@ -362,21 +386,9 @@ def propertyDetails():
         return render_template("viewPropertyDetails.html", property_id=property_id, property_name=property_name, property_type=property_type, property_location=property_location, property_price=property_price, property_bedroom=property_bedroom, property_bathroom=property_bathroom, property_size=property_size, property_postedBy=property_postedBy, property_status=property_status, user_name=username , user_role = user_role)
     else:
         print("if its else")
-        return redirect(url_for('boundary.buy')) 
+        return redirect(url_for('boundary.buy'))
     
-
-@boundary.route('/viewAllAgents')
-def viewAllAgent():
-    user_role = session.get('role')
-    username = session.get('username')
-    displayAgentController = controller.DisplayAgentController()
-    agentlist = displayAgentController.display_all_agent()
-    print(agentlist)
-    return render_template('displayagent.html',agentlist = agentlist, user_name = username, user_role = user_role)
-
-
-
-#Search for all property    
+#display searched property based on the locaiton 
 @boundary.route('/viewSearchedProperty', methods=['POST','GET'])
 def viewSearchedpropertyDetails():
     user_role = session.get('role')
@@ -390,7 +402,7 @@ def viewSearchedpropertyDetails():
     else:
         return render_template("buyPage.html", property_list=searchedProperty, user_name=username, user_role = user_role)
 
-#Search the new property    
+#display searched new(selling) property listings
 @boundary.route('/viewSearchedNewProperty', methods=['POST','GET'])
 def viewSearchednewpropertyDetails():
     user_role = session.get('role')
@@ -404,7 +416,7 @@ def viewSearchednewpropertyDetails():
     else:
         return render_template("buyPage.html", property_list=searchedProperty, user_name=username, user_role = user_role)
   
-#Search the Old property    
+#display searched old(sold) property listings
 @boundary.route('/viewSearchedOldProperty', methods=['POST','GET'])
 def viewSearchedoldpropertyDetails():
     user_role = session.get('role')
@@ -418,8 +430,7 @@ def viewSearchedoldpropertyDetails():
     else:
         return render_template("buyPage.html", property_list=searchedProperty, user_name=username, user_role = user_role)
     
-
-#user story 
+#display all new(selling) property listings
 @boundary.route('/viewSellingProperty', methods=['POST'])
 def viewSellingpropertyDetails():
     user_role = session.get('role')
@@ -432,6 +443,7 @@ def viewSellingpropertyDetails():
     else:
         return render_template("buyPage.html", property_list=sellingProperty, user_name=username, user_role = user_role)
 
+#display all old(sold) property listings
 @boundary.route('/viewSoldProperty', methods=['POST'])
 def viewSoldpropertyDetails():
     user_role = session.get('role')
@@ -443,12 +455,8 @@ def viewSoldpropertyDetails():
         return render_template('buyPage.html', property_list=soldProperty, user_name=username, user_role = user_role)
     else:
         return render_template("buyPage.html", property_list=soldProperty, user_name=username, user_role = user_role)
-    
 
-                        
-
- #Seller And Real Estate Agent ============================================================================================================================
-        
+#sell page for sellers and agents to see their uploaded property listing and to edit or delete them or upload a new listing
 @boundary.route('/sell', methods=['GET'])
 def sell():
     user_role = session.get('role')
@@ -456,8 +464,8 @@ def sell():
     property_controller = controller.viewPersonalpropertyController()
     property_list = property_controller.view_personal_property(username)
     return render_template("sellPage.html", property_list=property_list, user_name=username, user_role = user_role)
-
-
+    
+#uploading a new lsiting
 @boundary.route('/submitPropertyListing', methods=['GET','POST'])
 def submitPropertyListing():
     user_role = session.get('role')
@@ -481,7 +489,7 @@ def submitPropertyListing():
             flash('property list fail to upload',category = 'error')
     return render_template('uploadProperty.html', user_name = username , user_role = user_role)
 
-
+#seller/rea deleting their property listing
 @boundary.route('/deleteProperty', methods=['POST'])
 def delete_property():
     user_role = session.get('role')
@@ -498,6 +506,7 @@ def delete_property():
         flash('Failed to delete property', category='error')
     return redirect(url_for('boundary.sell'))
 
+#a form page to edit details of a property listing
 @boundary.route('/updateProperty', methods=['POST','GET'])
 def update_property():
     user_role = session.get('role')
@@ -516,14 +525,14 @@ def update_property():
         propertyController = controller.updatePropertyListingController()
         result = propertyController.updateProperty(property_name,property_type,property_location,property_price,property_bedroom,property_bathroom,property_size,property_status,property_id)
         if result:
-            flash('Property updatede successfully',category='success')
+            flash('Property updated successfully',category='success')
             return redirect(url_for('boundary.sell') )
         else:
             flash('Property updatede unsuccessfully',category='error')
             return redirect(url_for('boundary.sell') )
     return render_template("updateProperty.html",user_name= username, user_role = user_role)
 
-#Ignore this first , this one is doing about the the sum of the detail
+#this redirects the seller/agent to the update property page form
 @boundary.route('/sellPropertyDetails', methods=['GET','POST'])
 def sellpropertyDetails():
     user_role = session.get('role')
@@ -539,6 +548,7 @@ def sellpropertyDetails():
     else:
         return redirect(url_for('boundary.sell'))
 
+#this redirects user to the property details page, where inside have display favourite counts and view count
 @boundary.route('/sellPropertyDetails2', methods=['GET','POST'])
 def sellpropertyDetails2():
     user_role = session.get('role')
@@ -554,88 +564,10 @@ def sellpropertyDetails2():
     else:
         return redirect(url_for('boundary.sell'))
     
+#End ======================================================================================================================
 
-# Ignore This first , Still got error
-@boundary.route('/displaySumDetail2', methods=['GET', 'POST'])
-def display_sum_detail():
-    username = session.get('username')
-    property_id = session.get('property_id')
-    user_role = session.get('role')
-    displayController = controller.displaySumDetailController()
-    displayresult2 = displayController.displaySumDetail(property_id)
-    if displayresult2:
-         displayresult = displayController.displayPropertyDetails2(property_id)
-         property_id, property_name, property_type, property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy ,property_status= displayresult
-         total_properties_num= displayresult2
-         flash('display the sum successfully', category='success')
-         return render_template("SellerPropertyDetails.html",user_name= username, property_id=property_id, property_name=property_name, property_type=property_type, property_location=property_location, property_price=property_price, property_bedroom=property_bedroom, property_bathroom=property_bathroom, property_size=property_size, property_postedBy=property_postedBy, property_status=property_status, total_properties_num= total_properties_num, user_role = user_role)
-    else:
-        flash('Failed display the sum , please try again', category='error')
-    return render_template("SellerPropertyDetails.html",user_name= username, user_role = user_role)
-
-#Review =================================================================================================================================
-@boundary.route('/displayAgentDetail', methods=['GET', 'POST'])
-def displayagentdetail():
-    user_role = session.get('role')
-    username = session.get('username')
-    agentname = request.form.get('agentname')
-    print(agentname)
-    agentDetailController = controller.DisplayAgentDetailController()
-    agentDetail = agentDetailController.displayAgentDetail(agentname)
-    if agentDetail:
-        role,agentname,contact = agentDetail
-        return render_template("review.html", user_name = username,agent_name= agentname,agent_role=role,agent_contact=contact, user_role = user_role)
-    else:
-        return render_template("review.html", user_name = username,agent_name= agentname,agent_role=role,agent_contact=contact, user_role = user_role)
-    
-    
-@boundary.route('/giveReview', methods=['GET', 'POST'])
-def givereview():
-    user_role = session.get('role')
-    postedby = session.get('username')
-    agentname = session.get('agentname')
-    if request.method == 'POST':
-        review = request.form.get('review_text')
-        rating = request.form.get('rating')
-    give_review_controller = controller.GiveReviewController()
-    reviews = give_review_controller.give_review(agentname, review, rating, postedby)
-    if reviews:
-        agentname, role, contact = reviews
-        flash('Review and rating submitted successfully!', category='success')
-        return render_template("review.html", user_name=postedby, agent_name=agentname, agent_role=role, agent_contact=contact, user_role=user_role)
-    else:
-        # Handle the case when reviews is None
-        flash('You have already reviewed this agent!', category='error')
-        # Assuming role and contact are not relevant if reviews is None
-        return redirect(url_for('boundary.viewAllAgent'))
-
-@boundary.route('/viewReviewRating', methods=['GET','POST'])
-def viewReviewRating():
-    user_role = session.get('role')
-    username = session.get('username')
-    agentname = request.form.get('agentname')
-    display_review_controller = controller.DisplayReviewController()
-    review_list = display_review_controller.displayReview(agentname)
-    if review_list:
-        return render_template("viewreview.html", user_name = username,review_list=review_list, user_role = user_role)
-    else:
-        return render_template("viewreview.html", user_name = username, user_role = user_role)
-            
-@boundary.route('/viewMyOwnReviewRating', methods=['GET'])
-def viewMyOwnReviewRating():
-    user_role = session.get('role')
-    agentname = session.get('username')
-    display_review_controller = controller.DisplayOwnReviewController()
-    review_list = display_review_controller.displayReview(agentname)
-    if review_list:
-        return render_template("viewmyownreview.html",  review_list=review_list, user_name=agentname, user_role = user_role)
-    else:
-        return render_template("viewmyownreview.html", review_list=review_list, user_name=agentname, user_role = user_role)
-
-#===================================================================================================================================
-    
-    
-#Favourites    
+#favourites boundary =====================================================================================================
+#this function allows buyer to save a property listing to view it later
 @boundary.route('/saveFavourite', methods=['GET','POST'])
 def saveFavourite():
     user_role = session.get('role')
@@ -654,6 +586,7 @@ def saveFavourite():
         flash('property already favourited!', category="error")
         return redirect(url_for('boundary.buy'))
     
+#this displays the saved favourites for the buyer
 @boundary.route('/displayFavourite', methods=['GET','POST'])
 def displayFavourite():
     user_role = session.get('role')
@@ -661,12 +594,11 @@ def displayFavourite():
     buyer_name = session.get('username')
     displayFavouriteController = controller.ViewFavouriteController()
     favourite = displayFavouriteController.view_favourites(buyer_name)
-    print(favourite)
     return render_template("viewfavourites.html", favourites=favourite, user_name=buyer_name, role = role, user_role = user_role)
 
 
 
-#Still working on it
+#this displays the total number of favourites from buyers for seller's property listing 
 @boundary.route('/displaySumFavourites', methods=['GET', 'POST'])
 def display_sum_favourites():
     username = session.get('username')
@@ -684,3 +616,88 @@ def display_sum_favourites():
     else:
         flash('Failed display the sum , please try again', category='error')
     return render_template("SellerPropertyDetails.html",user_name= username, user_role = user_role)
+    
+#End ======================================================================================================================
+
+#review boundary ==============================================================================================
+#giveReview submits users review and rating about an agent
+@boundary.route('/giveReview', methods=['GET', 'POST'])
+def givereview():
+    user_role = session.get('role')
+    postedby = session.get('username')
+    agentname = session.get('agentname')
+    if request.method == 'POST':
+        review = request.form.get('review_text')
+        rating = request.form.get('rating')
+    give_review_controller = controller.GiveReviewController()
+    reviews = give_review_controller.give_review(agentname, review, rating, postedby)
+    if reviews:
+        agentname, role, contact = reviews
+        flash('Review and rating submitted successfully!', category='success')
+        return render_template("review.html", user_name=postedby, agent_name=agentname, agent_role=role, agent_contact=contact, user_role=user_role)
+    else:
+        flash('You have already reviewed this agent!', category='error')
+        return redirect(url_for('boundary.viewAllAgent'))
+
+#this function displays the rating and review of a selected agent for buyers and sellers
+@boundary.route('/viewReviewRating', methods=['GET','POST'])
+def viewReviewRating():
+    user_role = session.get('role')
+    username = session.get('username')
+    agentname = request.form.get('agentname')
+    display_review_controller = controller.DisplayReviewController()
+    review_list = display_review_controller.displayReview(agentname)
+    if review_list:
+        return render_template("viewreview.html", user_name = username,review_list=review_list, user_role = user_role)
+    else:
+        return render_template("viewreview.html", user_name = username, user_role = user_role)
+    
+#this page displays to agents all their past rating and review recieved  
+@boundary.route('/viewMyOwnReviewRating', methods=['GET'])
+def viewMyOwnReviewRating():
+    user_role = session.get('role')
+    agentname = session.get('username')
+    display_review_controller = controller.DisplayOwnReviewController()
+    review_list = display_review_controller.displayReview(agentname)
+    if review_list:
+        return render_template("viewmyownreview.html",  review_list=review_list, user_name=agentname, user_role = user_role)
+    else:
+        return render_template("viewmyownreview.html", review_list=review_list, user_name=agentname, user_role = user_role)    
+#End ======================================================================================================================
+
+#details boundary ==============================================================================================
+#this functions counts the number if row data in details table and outputs it out
+@boundary.route('/displaySumDetail', methods=['GET', 'POST'])
+def display_sum_detail():
+    username = session.get('username')
+    property_id = session.get('property_id')
+    user_role = session.get('role')
+    displayController = controller.displaySumDetailController()
+    displayresult2 = displayController.displaySumDetail(property_id)
+    if displayresult2:
+         displayresult = displayController.displayPropertyDetails2(property_id)
+         property_id, property_name, property_type, property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy ,property_status= displayresult
+         total_properties_num= displayresult2
+         flash('display the sum successfully', category='success')
+         return render_template("SellerPropertyDetails.html",user_name= username, property_id=property_id, property_name=property_name, property_type=property_type, property_location=property_location, property_price=property_price, property_bedroom=property_bedroom, property_bathroom=property_bathroom, property_size=property_size, property_postedBy=property_postedBy, property_status=property_status, total_properties_num= total_properties_num, user_role = user_role)
+    else:
+        flash('Failed display the sum , please try again', category='error')
+    return render_template("SellerPropertyDetails.html",user_name= username, user_role = user_role)
+    
+#End ======================================================================================================================
+
+
+
+                        
+
+
+        
+
+
+
+
+
+
+
+
+

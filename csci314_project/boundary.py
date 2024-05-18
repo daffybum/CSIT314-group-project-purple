@@ -62,6 +62,21 @@ def viewAllRole():
     role_list = getAllRoleController.get_all_role()
     return render_template('viewAllUserProfiles.html', user_name = username, role_list = role_list, user_role = user_role)
 
+@boundary.route('/viewSearcheduserProfile', methods=['POST','GET'])
+def viewSearcheduserProfile():
+    user_role = session.get('role')
+    username = session.get('username')
+    inputroles = request.form.get('inputroles')
+    print(inputroles)
+    searchRolesController = controller.viewSearcheduserprofileController()
+    searchedRoles = searchRolesController.view_searched_userprofile(inputroles)
+    print(searchedRoles)
+    if searchedRoles is None:
+        flash(' No properties in that area!', category='error')
+        return render_template('viewAllUserProfiles.html', role_list=searchedRoles, user_name=username, user_role = user_role)
+    else:
+        return render_template("viewAllUserProfiles.html", role_list=searchedRoles, user_name=username, user_role = user_role)
+
 @boundary.route('/submitNewRole', methods=['GET', 'POST'])
 def submitNewRole():
     user_role = session.get('role')
@@ -97,6 +112,22 @@ def update_description():
         else:
             flash('Failed updated description', category='error')
             return redirect(url_for('boundary.viewAllRole'))
+        
+        
+@boundary.route('/adminDeleteProfile', methods=['GET','POST'])
+def delete_profile():
+    user_role = session.get('role')
+    username = session.get('username')
+    selected_role = request.form.get('deleteselected_role')
+    deleteController = controller.deleteUserProfile()
+    delete = deleteController.deleteUserProfile(selected_role)
+    if delete:
+        flash('Successfully deleted role', category='success')
+        return redirect(url_for('boundary.viewAllRole'))
+    else:
+        flash('Failed delete role', category='error')
+        return redirect(url_for('boundary.viewAllRole'))
+    
         
 #End =====================================================================================================================================
         
@@ -156,8 +187,12 @@ def sign_up():
                 flash('Account created!', category='success')
             else:
                 flash('Cannot Create Account!', category='error')
-
-    return render_template("sign_up.html")
+    username = session.get('username')
+    user_role = session.get('role') 
+    if username == 'admin':
+        return render_template("admincreateuser.html", user_name = username, user_role= user_role)
+    else:
+        return render_template("sign_up.html")
 
 
 @boundary.route('/home', methods=['GET', 'POST'])
@@ -296,8 +331,7 @@ def adminupdate_password():
     else:
         flash('Failed update your password, please try again', category='error')
         return redirect(url_for('boundary.viewAllUsers'))
-    
-
+        
 
 #Buyer =================================================================================================================
  
@@ -320,7 +354,7 @@ def propertyDetails():
         property_id = request.form.get('property_id')
         print(property_id)
     displayPropertyDetails = controller.displayPropertyDetailController()
-    propertydetails = displayPropertyDetails.displayPropertyDetails2(property_id)
+    propertydetails = displayPropertyDetails.displayPropertyDetails(property_id)
     print(propertydetails)
     if propertydetails:
         print("success")
@@ -497,7 +531,7 @@ def sellpropertyDetails():
     property_id = request.form.get('property_id')
     print(property_id)
     displayPropertyDetails = controller.displayPropertyDetailController()
-    propertydetails = displayPropertyDetails.displayPropertyDetails(property_id)
+    propertydetails = displayPropertyDetails.displayPropertyDetails2(property_id)
     print(propertydetails)
     if propertydetails:
         property_id, property_name, property_type, property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy ,property_status= propertydetails
@@ -591,7 +625,7 @@ def viewReviewRating():
 def viewMyOwnReviewRating():
     user_role = session.get('role')
     agentname = session.get('username')
-    display_review_controller = controller.DisplayReviewController()
+    display_review_controller = controller.DisplayOwnReviewController()
     review_list = display_review_controller.displayReview(agentname)
     if review_list:
         return render_template("viewmyownreview.html",  review_list=review_list, user_name=agentname, user_role = user_role)
@@ -642,7 +676,7 @@ def display_sum_favourites():
     displayresult = displayController.display_sum_favourites(property_id)
     print(displayresult)
     if displayresult:
-         result = displayController.displayPropertyDetails(property_id)
+         result = displayController.displayPropertyDetails2(property_id)
          property_id, property_name, property_type, property_location, property_price, property_bedroom, property_bathroom, property_size, property_postedBy ,property_status= result
          total_properties = displayresult 
          flash('display the sum successfully', category='success')

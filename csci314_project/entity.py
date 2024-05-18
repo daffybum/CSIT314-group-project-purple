@@ -43,6 +43,24 @@ class UserProfile:
             print(f"Error inserting: {str(e)}")
             return False
         
+    def search_roles(self, role):
+        try:
+            cur = mysql.connection.cursor()
+
+            query = "SELECT * FROM userprofiles where role = %s"
+            data = (role,)
+            cur.execute(query,data)
+            role_list = []
+            for role_data in cur.fetchall():
+                print(role_data)
+                role_item = UserProfile(role=role_data[0], description=role_data[1], status=role_data[2])
+                role_list.append(role_item)
+            cur.close()
+            
+            return role_list
+        
+        except Exception as e:
+            print(f"Error searching role: {e}")    
 
     def update_description(self,role,new_description):
         try:
@@ -54,6 +72,23 @@ class UserProfile:
             return True
         except Exception as e:
             print(f"Error updating")
+            
+            
+    def delete_profile(self,role): 
+        try:
+            cur = mysql.connection.cursor()
+            delete_query = "DELETE FROM userprofiles WHERE role = %s"
+            update_query = "UPDATE useraccount set role = NULL WHERE role = %s"
+            cur.execute(update_query, (role,))
+            cur.execute(delete_query, (role,))
+
+            mysql.connection.commit()
+            cur.close()
+            return True
+        except Exception as e:
+            print(f"Error deleting account: {e}")
+            return False
+        
             
 #end ==========================================================================================================
 
@@ -438,12 +473,12 @@ class PropertyListing:
             property_data = cur.fetchone()
 
             # Insert property_id into detail table
-            insert_query = "INSERT INTO detail (property_id) VALUES (%s)"
+            insert_query = "INSERT INTO detail (property_id) VALUES (%s) "
             cur.execute(insert_query, (property_id,))
             
             mysql.connection.commit()  # Commit both the SELECT and INSERT operations
 
-        except Exception as e:
+        except Exception as e: 
             # Log the exception here
             print(f"An error occurred: {e}")
             mysql.connection.rollback()  # Rollback the transaction in case of error
@@ -581,8 +616,12 @@ class PropertyListing:
             cur = mysql.connection.cursor()
             delete_query = "DELETE FROM properties where property_id = %s"
             delete_query1 = "DELETE FROM favourites where property_id= %s"
-            cur.execute(delete_query, (property_id,))
+            delete_query2 = "DELETE FROM detail where property_id= %s"
+            
+            cur.execute(delete_query2, (property_id,))
             cur.execute(delete_query1, (property_id,))
+            cur.execute(delete_query, (property_id,))
+            
             mysql.connection.commit()
             cur.close()
             return True

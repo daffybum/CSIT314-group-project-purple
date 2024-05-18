@@ -165,6 +165,11 @@ class DisplayReviewController:
     def displayReview(self, agentname):
         return self.review.displayreview(agentname)
 
+class DisplayOwnReviewController:
+    def __init__(self):
+        self.review = entity.Review()
+    def displayReview(self, agentname):
+        return self.review.displayreview(agentname)
 
 class DeleteController:
     def __init__(self):
@@ -211,9 +216,15 @@ class displaySumFavouritesController:
         print('234')
         return self.favourite.display_sum_favourites(property_id)
         
-     def displayPropertyDetails(self, property_id):
-        return self.propertyListing.get_property_detail(property_id)
+     def displayPropertyDetails2(self, property_id):
+        return self.propertyListing.get_property_detail2(property_id)
      
+class viewSearcheduserprofileController():
+    def __init__(self):
+        self.userProfile = entity.UserProfile()
+    
+    def view_searched_userprofile(self, role):
+        return self.userProfile.search_roles(role)
     
       
 #ADMIN
@@ -289,3 +300,9 @@ class displaySumDetailController():
     def displayPropertyDetails2(self, property_id):
         return self.propertyListing.get_property_detail2(property_id)
 
+class deleteUserProfile():
+    def __init__(self):
+        self.userProfile = entity.UserProfile()
+    
+    def deleteUserProfile(self, role):
+        return self.userProfile.delete_profile(role)
